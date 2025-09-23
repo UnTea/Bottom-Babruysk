@@ -3,6 +3,8 @@ package database
 import (
 	"context"
 	"time"
+
+	"bottom_babruysk/internal/repository"
 )
 
 type (
@@ -23,7 +25,7 @@ type (
 	}
 )
 
-func (r *GetUserRequest) GetUser(ctx context.Context, client *Client) (*GetUserResponse, error) {
+func (r *GetUserRequest) GetUser(ctx context.Context, client *repository.Client) (*GetUserResponse, error) {
 	const getUserSQL = `
 	select id, 
 	       email, 
@@ -35,7 +37,7 @@ func (r *GetUserRequest) GetUser(ctx context.Context, client *Client) (*GetUserR
 	limit 1;
 	`
 
-	user, err := FetchOne[User](ctx, client.Driver(), getUserSQL, r.UserID)
+	user, err := repository.FetchOne[User](ctx, client.Driver(), getUserSQL, r.UserID)
 	if err != nil {
 		return nil, err
 	}
