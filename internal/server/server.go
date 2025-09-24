@@ -5,21 +5,23 @@ import (
 	"net/http"
 	"time"
 
-	"bottom_babruysk/internal/configuration"
-	"bottom_babruysk/internal/repository"
-	"bottom_babruysk/internal/web"
+	"go.uber.org/zap"
+
+	"github.com/untea/bottom_babruysk/internal/configuration"
+	"github.com/untea/bottom_babruysk/internal/repository"
+	"github.com/untea/bottom_babruysk/internal/web/router"
 )
 
 type Server struct {
-	config *configuration.Config
-	db     *repository.Client
-	http   *http.Server
+	configuration *configuration.Configuration
+	db            *repository.Client
+	http          *http.Server
 }
 
-func New(config *configuration.Config) *Server {
-	repositoryConfig := repository.Config{
+func New(config *configuration.Configuration, log *zap.Logger) *Server {
+	repositoryConfig := repository.Configuration{
 		ConnectionString: config.DatabaseConnectionURL,
-		Timeout:          30 * time.Second,
+		Timeout:          time.Second * 30,
 	}
 
 	db, err := repository.New(context.Background(), repositoryConfig)
@@ -27,14 +29,18 @@ func New(config *configuration.Config) *Server {
 		panic(err)
 	}
 
-	handler := web.New(db)
+	handler := router.New(db, log)
 
 	return &Server{
-		config: config,
-		db:     db,
+		configuration: config,
+		db:            db,
 		http: &http.Server{
-			Addr:    config.HTTPAddress,
-			Handler: handler,
+			Addr:              config.HTTPAddress,
+			Handler:           handler,
+			ReadHeaderTimeout: time.Second * 10,
+			ReadTimeout:       time.Second * 30,
+			WriteTimeout:      time.Second * 30,
+			IdleTimeout:       time.Second * 60,
 		},
 	}
 }

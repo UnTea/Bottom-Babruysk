@@ -8,17 +8,17 @@ import (
 )
 
 type Client struct {
-	driver Driver
-	config Config
+	driver        Driver
+	configuration Configuration
 }
 
-type Config struct {
+type Configuration struct {
 	ConnectionString string
 	Timeout          time.Duration
 }
 
-func New(ctx context.Context, config Config) (*Client, error) {
-	pollConf, err := pgxpool.ParseConfig(config.ConnectionString)
+func New(ctx context.Context, cfg Configuration) (*Client, error) {
+	pollConf, err := pgxpool.ParseConfig(cfg.ConnectionString)
 	if err != nil {
 		return nil, err
 	}
@@ -28,12 +28,14 @@ func New(ctx context.Context, config Config) (*Client, error) {
 		return nil, err
 	}
 
-	return &Client{
+	databaseClient := &Client{
 		driver: &PgxPool{
 			pool: pool,
 		},
-		config: config,
-	}, nil
+		configuration: cfg,
+	}
+
+	return databaseClient, nil
 }
 
 func (c *Client) Close() {
@@ -43,7 +45,7 @@ func (c *Client) Close() {
 }
 
 func (c *Client) QueryTimeout() time.Duration {
-	return c.config.Timeout
+	return c.configuration.Timeout
 }
 
 func (c *Client) Driver() Driver {

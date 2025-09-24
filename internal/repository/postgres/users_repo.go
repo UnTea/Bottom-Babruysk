@@ -6,8 +6,8 @@ import (
 
 	"github.com/google/uuid"
 
-	"bottom_babruysk/internal/domain"
-	"bottom_babruysk/internal/repository"
+	"github.com/untea/bottom_babruysk/internal/domain"
+	"github.com/untea/bottom_babruysk/internal/repository"
 )
 
 type UsersRepository struct {
@@ -18,11 +18,11 @@ func NewUsersRepo(db *repository.Client) *UsersRepository {
 	return &UsersRepository{DB: db}
 }
 
-func (r *UsersRepository) Create(ctx context.Context, request domain.CreateUserRequest) (*domain.User, error) {
+func (r *UsersRepository) Create(ctx context.Context, request domain.CreateUserRequest) (*uuid.UUID, error) {
 	const createUserSQL = `
 		insert into users (id, email, password_hash, display_name, role, created_at)
 		values ($1, $2, $3, $4, coalesce($5::user_role, 'user'::user_role), $6)
-		returning id, email, password_hash, display_name, role, created_at;
+		returning id;
 	`
 
 	arguments := []any{
@@ -34,7 +34,7 @@ func (r *UsersRepository) Create(ctx context.Context, request domain.CreateUserR
 		time.Now().UTC(),
 	}
 
-	return repository.FetchOne[domain.User](ctx, r.DB.Driver(), createUserSQL, arguments...)
+	return repository.FetchOne[uuid.UUID](ctx, r.DB.Driver(), createUserSQL, arguments...)
 }
 
 func (r *UsersRepository) Get(ctx context.Context, id uuid.UUID) (*domain.User, error) {
@@ -104,7 +104,7 @@ func (r *UsersRepository) List(ctx context.Context, page domain.Page, role, sear
 	return result, nil
 }
 
-func (r *UsersRepository) Update(ctx context.Context, id uuid.UUID, upd domain.UpdateUserRequest) (*domain.User, error) {
+func (r *UsersRepository) Update(ctx context.Context, id uuid.UUID, upd domain.UpdateUserRequest) error {
 	const updateUserSQL = `
 		update users
 		set
@@ -121,7 +121,12 @@ func (r *UsersRepository) Update(ctx context.Context, id uuid.UUID, upd domain.U
 		upd.Role,
 	}
 
-	return repository.FetchOne[domain.User](ctx, r.DB.Driver(), updateUserSQL, arguments...)
+	_, err := repository.FetchOne[domain.User](ctx, r.DB.Driver(), updateUserSQL, arguments...)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (r *UsersRepository) Delete(ctx context.Context, id uuid.UUID) error {

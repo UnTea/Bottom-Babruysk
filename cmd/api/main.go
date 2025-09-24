@@ -3,29 +3,37 @@ package main
 import (
 	"context"
 	"errors"
-	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
 
-	"bottom_babruysk/internal/configuration"
-	"bottom_babruysk/internal/server"
+	"go.uber.org/zap"
+
+	"github.com/untea/bottom_babruysk/internal/configuration"
+	"github.com/untea/bottom_babruysk/internal/logger"
+	"github.com/untea/bottom_babruysk/internal/server"
 )
 
 func main() {
-	databaseConnectionURL := "postgres://admin:admin@localhost:5432/bottom_babruysk?sslmode=disable"
-	httpAddress := ":8080"
+	l, err := logger.New()
+	if err != nil {
+		panic(err)
+	}
 
-	config := configuration.New(databaseConnectionURL, httpAddress)
-	srv := server.New(config)
+	config, err := configuration.Load()
+	if err != nil {
+		l.Info("failed to load config", zap.Error(err))
+	}
+
+	srv := server.New(config, l)
 
 	go func() {
-		log.Printf("HTTP listening on %s", config.HTTPAddress)
+		l.Info("HTTP server listening", zap.Any("address", config.HTTPAddress))
 
 		if err := srv.Start(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-			log.Fatalf("server start: %v", err)
+			l.Info("failed to start HTTP server", zap.Error(err))
 		}
 	}()
 
@@ -33,10 +41,11 @@ func main() {
 	signal.Notify(stop, os.Interrupt, syscall.SIGTERM, syscall.SIGINT)
 
 	<-stop
+
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
 	defer cancel()
 
-	if err := srv.Stop(ctx); err != nil {
-		log.Printf("server stop: %v", err)
+	if err = srv.Stop(ctx); err != nil {
+		l.Info("failed to stop HTTP server", zap.Error(err))
 	}
 }

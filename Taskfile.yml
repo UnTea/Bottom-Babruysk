@@ -1,0 +1,32 @@
+# https://taskfile.dev
+
+version: '3'
+
+dotenv: [ '.env' ]
+
+vars:
+  LINT_VERSION: v2.5.0
+  LINT_CFG: .golangci.yaml
+
+tasks:
+  install:lint:
+    desc: Install golangci-lint if missing
+    status:
+      - command -v golangci-lint >/dev/null 2>&1
+    cmds:
+      - |
+        echo "Installing golangci-lint {{.LINT_VERSION}}..."
+        go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@{{.LINT_VERSION}}
+        echo "golangci-lint installed to $(go env GOPATH)/bin (ensure it's in PATH)"
+
+  lint:
+    desc: Run golangci-lint
+    deps: [ install:lint ]
+    cmds:
+      - golangci-lint run -c {{.LINT_CFG}}
+
+  lint:fix:
+    desc: Run golangci-lint with --fix (where supported)
+    deps: [ install:lint ]
+    cmds:
+      - golangci-lint run -c {{.LINT_CFG}} --fix

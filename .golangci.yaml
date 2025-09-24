@@ -1,0 +1,96 @@
+version: "2"
+run:
+  concurrency: 2
+  go: "1.24"
+  modules-download-mode: readonly
+  issues-exit-code: 1
+  tests: false
+  allow-parallel-runners: true
+output:
+  formats:
+    text:
+      format: colored-line-number
+      path: stdout
+      print-linter-name: true
+      print-issued-lines: true
+    code-climate:
+      path: code-quality-report.json
+  path-prefix: ""
+linters:
+  enable:
+    - funlen
+    - gocognit
+    - gosec
+    - nilerr
+    - nolintlint
+    - tagliatelle
+    - varnamelen
+    - wastedassign
+    - wsl_v5
+  settings:
+    funlen:
+      lines: 100
+      statements: 60
+    gocognit:
+      min-complexity: 20
+    nolintlint:
+      require-explanation: true
+      require-specific: false
+      allow-unused: false
+    tagliatelle:
+      case:
+        rules:
+          json: snake
+    varnamelen:
+      max-distance: 8
+      min-name-length: 3
+      check-receiver: false
+      check-return: true
+      check-type-param: true
+      ignore-names:
+        - c
+        - l
+        - n
+        - r
+        - id
+        - ip
+        - ok
+        - db
+      ignore-type-assert-ok: true
+      ignore-map-index-ok: true
+      ignore-chan-recv-ok: true
+      ignore-decls:
+        - t testing.T
+        - T any
+        - w http.ResponseWriter
+        - r *http.Request
+        - i int
+        - wg sync.WaitGroup
+        - ctx context.Context
+    wsl_v5:
+      strict-append: true
+      allow-assign-and-call: true
+      allow-assign-and-anything: false
+      allow-multiline-assign: true
+      force-case-trailing-whitespace: 2
+      allow-trailing-comment: true
+      allow-separated-leading-comment: true
+      allow-cuddle-declarations: false
+      force-err-cuddling: true
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    rules:
+      - linters:
+          - funlen
+        path: internal\/database\/(.+)\.go
+    paths:
+issues:
+  uniq-by-line: true
+formatters:
+  exclusions:
+    generated: lax

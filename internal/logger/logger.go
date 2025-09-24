@@ -1,11 +1,13 @@
 package logger
 
-import "go.uber.org/zap"
+import (
+	"os"
+
+	"go.uber.org/zap"
+)
 
 func New() (*zap.Logger, error) {
-	EnvironmentApiLogLevel := zap.DebugLevel.String()
-
-	logLevel := EnvironmentApiLogLevel
+	logLevel := os.Getenv("API_LOGGER_LEVEL")
 
 	var level zap.AtomicLevel
 
@@ -24,12 +26,12 @@ func New() (*zap.Logger, error) {
 		level = zap.NewAtomicLevelAt(zap.InfoLevel)
 	}
 
-	conf := zap.NewDevelopmentConfig()
+	config := zap.NewDevelopmentConfig()
 
-	conf.Level = level
-	conf.DisableStacktrace = true
-	conf.OutputPaths = []string{"stdout"}
-	conf.ErrorOutputPaths = []string{"stdout"}
+	config.Level = level
+	config.DisableStacktrace = true
+	config.OutputPaths = []string{"stdout"}
+	config.ErrorOutputPaths = []string{"stdout"}
 
-	return conf.Build()
+	return config.Build()
 }
