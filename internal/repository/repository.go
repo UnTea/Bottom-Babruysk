@@ -3,15 +3,13 @@ package repository
 import (
 	"context"
 
-	"github.com/google/uuid"
-
 	"github.com/untea/bottom_babruysk/internal/domain"
 )
 
 type Users interface {
-	Create(ctx context.Context, cu domain.CreateUserRequest) (*uuid.UUID, error)
-	Get(ctx context.Context, id uuid.UUID) (*domain.User, error)
-	List(ctx context.Context, page domain.Page, role, search *string) ([]domain.User, error)
-	Update(ctx context.Context, id uuid.UUID, upd domain.UpdateUserRequest) error
-	Delete(ctx context.Context, id uuid.UUID) error
+	CreateUser(ctx context.Context, request domain.CreateUserRequest) (*domain.CreateUserResponse, error)
+	GetUser(ctx context.Context, request domain.GetUserRequest) (*domain.GetUserResponse, error)
+	GetListUser(ctx context.Context, request domain.GetListUserRequest) (*domain.GetListUserResponse, error)
+	UpdateUser(ctx context.Context, request domain.UpdateUserRequest) error
+	DeleteUser(ctx context.Context, id domain.DeleteUserRequest) error
 }

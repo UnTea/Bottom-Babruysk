@@ -13,7 +13,12 @@ import (
 
 	"github.com/untea/bottom_babruysk/internal/configuration"
 	"github.com/untea/bottom_babruysk/internal/logger"
+	"github.com/untea/bottom_babruysk/internal/repository"
+	"github.com/untea/bottom_babruysk/internal/repository/postgres"
 	"github.com/untea/bottom_babruysk/internal/server"
+	"github.com/untea/bottom_babruysk/internal/service"
+	"github.com/untea/bottom_babruysk/internal/web/handlers"
+	"github.com/untea/bottom_babruysk/internal/web/router"
 )
 
 func main() {
@@ -27,11 +32,33 @@ func main() {
 		l.Info("failed to load config", zap.Error(err))
 	}
 
-	srv := server.New(config, l)
+	databaseConfiguration := repository.Configuration{
+		ConnectionString: config.DatabaseConnectionURL,
+		Timeout:          30 * time.Second,
+	}
+
+	db, err := repository.New(context.Background(), databaseConfiguration)
+	if err != nil {
+		l.Info("failed to init db", zap.Error(err))
+	}
+
+	defer db.Close()
+
+	usersRepo := postgres.NewUsersRepo(db)
+
+	usersSvc := service.NewUsersSrv(usersRepo)
+
+	h := handlers.New(l, struct{ Users service.Users }{Users: usersSvc})
+
+	deps := router.Deps{
+		Logger:     l,
+		Users:      h,
+		EnableCORS: true,
+	}
+
+	srv := server.New(config, l, deps)
 
 	go func() {
-		l.Info("HTTP server listening", zap.Any("address", config.HTTPAddress))
-
 		if err := srv.Start(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			l.Info("failed to start HTTP server", zap.Error(err))
 		}

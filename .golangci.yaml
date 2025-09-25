@@ -51,7 +51,9 @@ linters:
         - c
         - l
         - n
+        - b
         - r
+        - rt
         - id
         - ip
         - ok

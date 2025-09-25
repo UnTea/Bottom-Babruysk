@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/go-chi/chi/v5/middleware"
+	chiMiddleware "github.com/go-chi/chi/v5/middleware"
 	"github.com/grpc-ecosystem/go-grpc-middleware/logging/zap/ctxzap"
 	"go.uber.org/zap"
 )
@@ -35,16 +35,21 @@ func (w *statusRW) Write(b []byte) (int, error) {
 func RequestLogger(base *zap.Logger) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			start := time.Now()
+			start := time.Now().UTC()
+			requestID := chiMiddleware.GetReqID(r.Context())
 
-			requestID := middleware.GetReqID(r.Context())
+			if requestID != "" {
+				w.Header().Set("X-Request-ID", requestID)
+			}
 
 			l := base.With(
 				zap.String("req_id", requestID),
 				zap.String("method", r.Method),
 				zap.String("path", r.URL.Path),
+				zap.String("query", r.URL.RawQuery),
 				zap.String("remote", r.RemoteAddr),
 				zap.String("ua", r.UserAgent()),
+				zap.String("referer", r.Referer()),
 			)
 
 			ctx := ctxzap.ToContext(r.Context(), l)

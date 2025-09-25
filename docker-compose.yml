@@ -28,7 +28,7 @@ services:
     env_file:
       - .env
     volumes:
-      - ./database/migrations:/database/migrations:ro
+      - ./internal/database/migrations:/internal/database/migrations:ro
     working_dir: /internal/database/migrations
     command: [ "up" ]
     restart: "no"

@@ -15,7 +15,7 @@ const (
 	UploadStatusFailed     UploadStatus = "failed"
 )
 
-type Uploads struct {
+type Upload struct {
 	ID        *uuid.UUID    `db:"id"`
 	OwnerID   *uuid.UUID    `db:"owner_id"`
 	Filename  *string       `db:"filename"`

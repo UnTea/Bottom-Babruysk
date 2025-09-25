@@ -9,6 +9,8 @@ tool (
 
 require (
 	github.com/go-chi/chi/v5 v5.2.3
+	github.com/go-chi/cors v1.2.2
+	github.com/go-ozzo/ozzo-validation/v4 v4.3.0
 	github.com/google/uuid v1.6.0
 	github.com/grpc-ecosystem/go-grpc-middleware v1.4.0
 	github.com/jackc/pgx/v5 v5.7.5
@@ -46,6 +48,7 @@ require (
 	github.com/alingse/nilnesserr v0.2.0 // indirect
 	github.com/andybalholm/brotli v1.2.0 // indirect
 	github.com/antlr4-go/antlr/v4 v4.13.0 // indirect
+	github.com/asaskevich/govalidator v0.0.0-20200108200545-475eaeb16496 // indirect
 	github.com/ashanbrown/forbidigo/v2 v2.1.0 // indirect
 	github.com/ashanbrown/makezero/v2 v2.0.1 // indirect
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect

@@ -6,7 +6,7 @@ import (
 	"github.com/google/uuid"
 )
 
-type TrackAuthors struct {
+type TrackAuthor struct {
 	ID        *uuid.UUID `db:"id"`
 	TrackID   *uuid.UUID `db:"track_id"`
 	ArtistID  *uuid.UUID `db:"artist_id"`

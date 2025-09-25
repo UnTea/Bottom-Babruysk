@@ -6,7 +6,7 @@ import (
 	"github.com/google/uuid"
 )
 
-type Albums struct {
+type Album struct {
 	ID          *uuid.UUID `db:"id"`
 	OwnerID     *uuid.UUID `db:"owner_id"`
 	Title       *string    `db:"title"`

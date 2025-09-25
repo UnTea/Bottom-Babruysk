@@ -5,32 +5,54 @@ import (
 	"time"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
-	"github.com/grpc-ecosystem/go-grpc-middleware/logging/zap/ctxzap"
+	chiMiddleware "github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/cors"
 	"go.uber.org/zap"
 
-	"github.com/untea/bottom_babruysk/internal/repository"
-	"github.com/untea/bottom_babruysk/internal/web/handlers"
+	web2 "github.com/untea/bottom_babruysk/internal/web"
 	web "github.com/untea/bottom_babruysk/internal/web/middleware"
 )
 
-func New(db *repository.Client, log *zap.Logger) http.Handler {
+type Deps struct {
+	Logger     *zap.Logger
+	Users      web2.UsersHTTP
+	EnableCORS bool
+}
+
+func New(deps Deps) *chi.Mux {
 	r := chi.NewRouter()
 
-	r.Use(middleware.RequestID)
-	r.Use(middleware.RealIP)
-	r.Use(middleware.Recoverer)
-	r.Use(web.RequestLogger(log))
+	// базовые middlewares
+	if deps.EnableCORS {
+		r.Use(cors.Handler(cors.Options{
+			AllowedOrigins:   []string{"https://*", "http://*"},
+			AllowedMethods:   []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
+			AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+			ExposedHeaders:   []string{"Link"},
+			AllowCredentials: true,
+			MaxAge:           300,
+		}))
+	}
 
-	r.Get("/healthz", func(w http.ResponseWriter, r *http.Request) {
-		ctxzap.Extract(r.Context()).Debug("healthz ping")
-		handlers.WriteJSON(w, http.StatusOK, map[string]any{
-			"status":     "ok",
-			"time_stamp": time.Now().UTC(),
-		})
+	r.Use(
+		chiMiddleware.RequestID,
+		chiMiddleware.RealIP,
+		chiMiddleware.Recoverer,
+		chiMiddleware.Timeout(60*time.Second),
+		web.RequestLogger(deps.Logger),
+	)
+
+	// health
+	r.Get("/healthz", func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusOK)
 	})
 
-	_ = db
+	r.Route("/api/v1", func(api chi.Router) {
+		// /api/v1/users/...
+		if deps.Users != nil {
+			deps.Users.MountUsers(api)
+		}
+	})
 
 	return r
 }
