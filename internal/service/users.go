@@ -7,58 +7,55 @@ import (
 	"github.com/untea/bottom_babruysk/internal/repository"
 )
 
-type Users interface {
-	CreateUser(ctx context.Context, request domain.CreateUserRequest) (*domain.CreateUserResponse, error)
-	GetUser(ctx context.Context, request domain.GetUserRequest) (*domain.GetUserResponse, error)
-	GetListUser(ctx context.Context, request domain.GetListUserRequest) (*domain.GetListUserResponse, error)
-	UpdateUser(ctx context.Context, request domain.UpdateUserRequest) error
-	DeleteUser(ctx context.Context, request domain.DeleteUserRequest) error
+type UsersService struct {
+	repository repository.Users
 }
 
-type usersService struct {
-	repo repository.Users
+func NewUsersService(repository repository.Users) *UsersService {
+	return &UsersService{repository: repository}
 }
 
-func NewUsersSrv(repo repository.Users) Users {
-	return &usersService{repo: repo}
-}
-
-func (s *usersService) CreateUser(ctx context.Context, request domain.CreateUserRequest) (*domain.CreateUserResponse, error) {
-	if err := request.Validate(); err != nil {
+func (s *UsersService) CreateUser(ctx context.Context, request domain.CreateUserRequest) (*domain.CreateUserResponse, error) {
+	err := request.Validate()
+	if err != nil {
 		return nil, err
 	}
 
-	return s.repo.CreateUser(ctx, request)
+	return s.repository.CreateUser(ctx, request)
 }
 
-func (s *usersService) GetUser(ctx context.Context, request domain.GetUserRequest) (*domain.GetUserResponse, error) {
-	if err := request.Validate(); err != nil {
+func (s *UsersService) GetUser(ctx context.Context, request domain.GetUserRequest) (*domain.GetUserResponse, error) {
+	err := request.Validate()
+	if err != nil {
 		return nil, err
 	}
 
-	return s.repo.GetUser(ctx, request)
+	return s.repository.GetUser(ctx, request)
 }
 
-func (s *usersService) GetListUser(ctx context.Context, request domain.GetListUserRequest) (*domain.GetListUserResponse, error) {
-	if err := request.Validate(); err != nil {
+func (s *UsersService) ListUsers(ctx context.Context, request domain.GetListUserRequest) (*domain.GetListUserResponse, error) {
+	err := request.Validate()
+	if err != nil {
 		return nil, err
 	}
 
-	return s.repo.GetListUser(ctx, request)
+	return s.repository.ListUsers(ctx, request)
 }
 
-func (s *usersService) UpdateUser(ctx context.Context, request domain.UpdateUserRequest) error {
-	if err := request.Validate(); err != nil {
+func (s *UsersService) UpdateUser(ctx context.Context, request domain.UpdateUserRequest) error {
+	err := request.Validate()
+	if err != nil {
 		return err
 	}
 
-	return s.repo.UpdateUser(ctx, request)
+	return s.repository.UpdateUser(ctx, request)
 }
 
-func (s *usersService) DeleteUser(ctx context.Context, request domain.DeleteUserRequest) error {
-	if err := request.Validate(); err != nil {
+func (s *UsersService) DeleteUser(ctx context.Context, request domain.DeleteUserRequest) error {
+	err := request.Validate()
+	if err != nil {
 		return err
 	}
 
-	return s.repo.DeleteUser(ctx, request)
+	return s.repository.DeleteUser(ctx, request)
 }

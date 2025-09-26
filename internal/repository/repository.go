@@ -7,9 +7,9 @@ import (
 )
 
 type Users interface {
-	CreateUser(ctx context.Context, request domain.CreateUserRequest) (*domain.CreateUserResponse, error)
-	GetUser(ctx context.Context, request domain.GetUserRequest) (*domain.GetUserResponse, error)
-	GetListUser(ctx context.Context, request domain.GetListUserRequest) (*domain.GetListUserResponse, error)
-	UpdateUser(ctx context.Context, request domain.UpdateUserRequest) error
-	DeleteUser(ctx context.Context, id domain.DeleteUserRequest) error
+	CreateUser(context.Context, domain.CreateUserRequest) (*domain.CreateUserResponse, error)
+	GetUser(context.Context, domain.GetUserRequest) (*domain.GetUserResponse, error)
+	ListUsers(context.Context, domain.GetListUserRequest) (*domain.GetListUserResponse, error)
+	UpdateUser(context.Context, domain.UpdateUserRequest) error
+	DeleteUser(context.Context, domain.DeleteUserRequest) error
 }

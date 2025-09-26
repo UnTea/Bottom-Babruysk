@@ -9,21 +9,20 @@ import (
 	"github.com/go-chi/cors"
 	"go.uber.org/zap"
 
-	web2 "github.com/untea/bottom_babruysk/internal/web"
-	web "github.com/untea/bottom_babruysk/internal/web/middleware"
+	"github.com/untea/bottom_babruysk/internal/web"
+	webMiddleware "github.com/untea/bottom_babruysk/internal/web/middleware"
 )
 
-type Deps struct {
+type Dependencies struct {
 	Logger     *zap.Logger
-	Users      web2.UsersHTTP
+	Users      web.UsersHTTP
 	EnableCORS bool
 }
 
-func New(deps Deps) *chi.Mux {
+func New(dependencies Dependencies) *chi.Mux {
 	r := chi.NewRouter()
 
-	// базовые middlewares
-	if deps.EnableCORS {
+	if dependencies.EnableCORS {
 		r.Use(cors.Handler(cors.Options{
 			AllowedOrigins:   []string{"https://*", "http://*"},
 			AllowedMethods:   []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
@@ -39,19 +38,15 @@ func New(deps Deps) *chi.Mux {
 		chiMiddleware.RealIP,
 		chiMiddleware.Recoverer,
 		chiMiddleware.Timeout(60*time.Second),
-		web.RequestLogger(deps.Logger),
+		webMiddleware.RequestLogger(dependencies.Logger),
 	)
 
-	// health
 	r.Get("/healthz", func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusOK)
 	})
 
 	r.Route("/api/v1", func(api chi.Router) {
-		// /api/v1/users/...
-		if deps.Users != nil {
-			deps.Users.MountUsers(api)
-		}
+		dependencies.Users.MountUsers(api)
 	})
 
 	return r

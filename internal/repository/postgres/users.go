@@ -2,39 +2,34 @@ package postgres
 
 import (
 	"context"
-	"time"
-
-	"github.com/google/uuid"
 
 	"github.com/untea/bottom_babruysk/internal/domain"
 	"github.com/untea/bottom_babruysk/internal/repository"
 )
 
 type UsersRepository struct {
-	DB *repository.Client
+	db *repository.Client // TODO реализовать интерфейс для fetch и прокидывать просто r.db
 }
 
-func NewUsersRepo(db *repository.Client) *UsersRepository {
-	return &UsersRepository{DB: db}
+func NewUsersRepository(db *repository.Client) *UsersRepository {
+	return &UsersRepository{db: db}
 }
 
 func (r *UsersRepository) CreateUser(ctx context.Context, request domain.CreateUserRequest) (*domain.CreateUserResponse, error) {
 	const createUserSQL = `
-		insert into users (id, email, password_hash, display_name, role, created_at)
-		values ($1, $2, $3, $4, coalesce($5::user_role, 'user'::user_role), $6)
+		insert into users (id, email, password_hash, display_name, role)
+		values ($1, $2, $3, $4, coalesce($5::user_role, 'user'::user_role))
 		returning id;
 	`
 
 	arguments := []any{
-		uuid.New(),
 		request.Email,
 		request.PasswordHash,
 		request.DisplayName,
 		request.Role,
-		time.Now().UTC(),
 	}
 
-	user, err := repository.FetchOne[domain.User](ctx, r.DB.Driver(), createUserSQL, arguments...)
+	user, err := repository.FetchOne[domain.User](ctx, r.db.Driver(), createUserSQL, arguments...) // TODO реализовать интерфейс для fetch и прокидывать просто r.db
 	if err != nil {
 		return nil, err
 	}
@@ -46,11 +41,10 @@ func (r *UsersRepository) GetUser(ctx context.Context, request domain.GetUserReq
 	const getUserSQL = `
 		select id, email, password_hash, display_name, role, created_at 
 		from users 
-		where id = $1
-		limit 1;
+		where id = $1;
 	`
 
-	user, err := repository.FetchOne[domain.User](ctx, r.DB.Driver(), getUserSQL, request.ID)
+	user, err := repository.FetchOne[domain.User](ctx, r.db.Driver(), getUserSQL, request.ID) // TODO реализовать интерфейс для fetch и прокидывать просто r.db
 	if err != nil {
 		return nil, err
 	}
@@ -58,7 +52,7 @@ func (r *UsersRepository) GetUser(ctx context.Context, request domain.GetUserReq
 	return &domain.GetUserResponse{User: user}, nil
 }
 
-func (r *UsersRepository) GetListUser(ctx context.Context, request domain.GetListUserRequest) (*domain.GetListUserResponse, error) {
+func (r *UsersRepository) ListUsers(ctx context.Context, request domain.GetListUserRequest) (*domain.GetListUserResponse, error) {
 	const getListUserSQL = `
 		with params as (
 			select
@@ -96,7 +90,7 @@ func (r *UsersRepository) GetListUser(ctx context.Context, request domain.GetLis
 
 			u.created_at desc
 		limit (select limit_val from params)
-		offset ((select offset_val from params) - 1) * (select limit_val from params);
+		offset (select offset_val from params);
 `
 
 	arguments := []any{
@@ -107,7 +101,7 @@ func (r *UsersRepository) GetListUser(ctx context.Context, request domain.GetLis
 		request.Offset,
 	}
 
-	users, err := repository.FetchMany[domain.User](ctx, r.DB.Driver(), getListUserSQL, arguments...)
+	users, err := repository.FetchMany[domain.User](ctx, r.db.Driver(), getListUserSQL, arguments...) // TODO реализовать интерфейс для fetch и прокидывать просто r.db
 	if err != nil {
 		return nil, err
 	}
@@ -122,8 +116,7 @@ func (r *UsersRepository) UpdateUser(ctx context.Context, request domain.UpdateU
 			display_name = coalesce($2, display_name),
 			role         = coalesce($3::user_role, role),
 			updated_at   = now()
-		where id = $1
-		returning id, email, password_hash, display_name, role, created_at, updated_at;
+		where id = $1;
 	`
 
 	arguments := []any{
@@ -132,7 +125,7 @@ func (r *UsersRepository) UpdateUser(ctx context.Context, request domain.UpdateU
 		request.Role,
 	}
 
-	_, err := repository.FetchOne[domain.User](ctx, r.DB.Driver(), updateUserSQL, arguments...)
+	_, err := repository.FetchOne[domain.User](ctx, r.db.Driver(), updateUserSQL, arguments...) // TODO реализовать интерфейс для fetch и прокидывать просто r.db
 	if err != nil {
 		return err
 	}
@@ -145,7 +138,7 @@ func (r *UsersRepository) DeleteUser(ctx context.Context, request domain.DeleteU
 		delete from users where id = $1;
 	`
 
-	affected, err := repository.ExecAffected(ctx, r.DB.Driver(), deleteUserSQL, request.ID)
+	affected, err := repository.ExecAffected(ctx, r.db.Driver(), deleteUserSQL, request.ID) // TODO реализовать интерфейс для fetch и прокидывать просто r.db
 	if err != nil {
 		return err
 	}

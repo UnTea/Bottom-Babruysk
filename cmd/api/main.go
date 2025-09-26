@@ -11,12 +11,11 @@ import (
 
 	"go.uber.org/zap"
 
+	"github.com/untea/bottom_babruysk/internal/application"
 	"github.com/untea/bottom_babruysk/internal/configuration"
 	"github.com/untea/bottom_babruysk/internal/logger"
 	"github.com/untea/bottom_babruysk/internal/repository"
-	"github.com/untea/bottom_babruysk/internal/repository/postgres"
 	"github.com/untea/bottom_babruysk/internal/server"
-	"github.com/untea/bottom_babruysk/internal/service"
 	"github.com/untea/bottom_babruysk/internal/web/handlers"
 	"github.com/untea/bottom_babruysk/internal/web/router"
 )
@@ -27,40 +26,42 @@ func main() {
 		panic(err)
 	}
 
-	config, err := configuration.Load()
+	cfg, err := configuration.Load()
 	if err != nil {
-		l.Info("failed to load config", zap.Error(err))
+		l.Fatal("failed to load cfg", zap.Error(err))
 	}
 
-	databaseConfiguration := repository.Configuration{
-		ConnectionString: config.DatabaseConnectionURL,
+	dbCfg := repository.Configuration{
+		ConnectionString: cfg.DatabaseConnectionURL,
 		Timeout:          30 * time.Second,
 	}
 
-	db, err := repository.New(context.Background(), databaseConfiguration)
+	dbClient, err := repository.New(context.Background(), dbCfg)
 	if err != nil {
-		l.Info("failed to init db", zap.Error(err))
+		l.Fatal("failed to initialize dbClient", zap.Error(err))
 	}
 
-	defer db.Close()
+	defer dbClient.Close()
 
-	usersRepo := postgres.NewUsersRepo(db)
+	container, err := application.BuildContainer(cfg, l, dbClient)
+	if err != nil {
+		panic(err)
+	}
 
-	usersSvc := service.NewUsersSrv(usersRepo)
+	h := handlers.New(l, &container.Services)
 
-	h := handlers.New(l, struct{ Users service.Users }{Users: usersSvc})
-
-	deps := router.Deps{
+	dependencies := router.Dependencies{
 		Logger:     l,
 		Users:      h,
 		EnableCORS: true,
 	}
 
-	srv := server.New(config, l, deps)
+	srv := server.New(cfg, l, dependencies)
 
 	go func() {
-		if err := srv.Start(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-			l.Info("failed to start HTTP server", zap.Error(err))
+		err := srv.Start()
+		if err != nil && !errors.Is(err, http.ErrServerClosed) {
+			l.Fatal("failed to start HTTP server", zap.Error(err))
 		}
 	}()
 
@@ -69,10 +70,11 @@ func main() {
 
 	<-stop
 
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	if err = srv.Stop(ctx); err != nil {
+	err = srv.Stop(ctx)
+	if err != nil {
 		l.Info("failed to stop HTTP server", zap.Error(err))
 	}
 }

@@ -13,7 +13,7 @@ type Driver interface {
 	Close()
 }
 
-// ExecAffected — helper для ExecAffected с возвратом числа изменённых строк.
+// ExecAffected helper для ExecAffected с возвратом числа изменённых строк.
 func ExecAffected(ctx context.Context, driver Driver, sqlQuery string, arguments ...any) (int64, error) {
 	tag, err := driver.Exec(ctx, sqlQuery, arguments...)
 	if err != nil {

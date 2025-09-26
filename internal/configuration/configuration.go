@@ -13,7 +13,7 @@ type Configuration struct {
 	HTTPAddress           string
 }
 
-func Load() (config *Configuration, err error) {
+func Load() (configuration *Configuration, err error) {
 	if err = godotenv.Load(); err != nil {
 		log.Fatalf("error loading .env file")
 	}

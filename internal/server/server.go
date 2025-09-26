@@ -13,37 +13,37 @@ import (
 
 type Server struct {
 	configuration *configuration.Configuration
-	log           *zap.Logger
-	http          *http.Server
+	logger        *zap.Logger
+	httpServer    *http.Server
 }
 
-func New(config *configuration.Configuration, log *zap.Logger, deps router.Deps) *Server {
-	r := router.New(deps)
+func New(configuration *configuration.Configuration, logger *zap.Logger, dependencies router.Dependencies) *Server {
+	r := router.New(dependencies)
 
 	httpServer := &http.Server{
-		Addr:              config.HTTPAddress,
+		Addr:              configuration.HTTPAddress,
 		Handler:           r,
-		ReadHeaderTimeout: time.Second * 30,
-		ReadTimeout:       time.Second * 30,
-		WriteTimeout:      time.Second * 60,
-		IdleTimeout:       time.Second * 90,
+		ReadHeaderTimeout: 30 * time.Second,
+		ReadTimeout:       30 * time.Second,
+		WriteTimeout:      60 * time.Second,
+		IdleTimeout:       90 * time.Second,
 	}
 
 	return &Server{
-		configuration: config,
-		log:           log,
-		http:          httpServer,
+		configuration: configuration,
+		logger:        logger,
+		httpServer:    httpServer,
 	}
 }
 
 func (s *Server) Start() error {
-	s.log.Info("HTTP server start", zap.String("addr", s.configuration.HTTPAddress))
+	s.logger.Info("HTTP server start", zap.String("addr", s.configuration.HTTPAddress))
 
-	return s.http.ListenAndServe()
+	return s.httpServer.ListenAndServe()
 }
 
 func (s *Server) Stop(ctx context.Context) error {
-	s.log.Info("HTTP server shutdown")
+	s.logger.Info("HTTP server shutdown")
 
-	return s.http.Shutdown(ctx)
+	return s.httpServer.Shutdown(ctx)
 }

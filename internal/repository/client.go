@@ -17,8 +17,8 @@ type Configuration struct {
 	Timeout          time.Duration
 }
 
-func New(ctx context.Context, cfg Configuration) (*Client, error) {
-	pollConf, err := pgxpool.ParseConfig(cfg.ConnectionString)
+func New(ctx context.Context, configuration Configuration) (*Client, error) {
+	pollConf, err := pgxpool.ParseConfig(configuration.ConnectionString)
 	if err != nil {
 		return nil, err
 	}
@@ -32,7 +32,7 @@ func New(ctx context.Context, cfg Configuration) (*Client, error) {
 		driver: &PgxPool{
 			pool: pool,
 		},
-		configuration: cfg,
+		configuration: configuration,
 	}
 
 	return databaseClient, nil

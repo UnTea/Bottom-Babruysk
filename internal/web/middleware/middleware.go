@@ -32,7 +32,7 @@ func (w *statusRW) Write(b []byte) (int, error) {
 }
 
 // RequestLogger кладёт request-scoped zap.Logger в контекст + логирует запрос/ответ.
-func RequestLogger(base *zap.Logger) func(next http.Handler) http.Handler {
+func RequestLogger(baseLogger *zap.Logger) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			start := time.Now().UTC()
@@ -42,14 +42,14 @@ func RequestLogger(base *zap.Logger) func(next http.Handler) http.Handler {
 				w.Header().Set("X-Request-ID", requestID)
 			}
 
-			l := base.With(
-				zap.String("req_id", requestID),
-				zap.String("method", r.Method),
-				zap.String("path", r.URL.Path),
-				zap.String("query", r.URL.RawQuery),
-				zap.String("remote", r.RemoteAddr),
-				zap.String("ua", r.UserAgent()),
-				zap.String("referer", r.Referer()),
+			l := baseLogger.With(
+				zap.Any("request id", requestID),
+				zap.Any("method", r.Method),
+				zap.Any("path", r.URL.Path),
+				zap.Any("query", r.URL.RawQuery),
+				zap.Any("remote", r.RemoteAddr),
+				zap.Any("user agent", r.UserAgent()),
+				zap.Any("referer", r.Referer()),
 			)
 
 			ctx := ctxzap.ToContext(r.Context(), l)
@@ -58,8 +58,8 @@ func RequestLogger(base *zap.Logger) func(next http.Handler) http.Handler {
 			next.ServeHTTP(srw, r.WithContext(ctx))
 
 			l.Info("http_request",
-				zap.Int("status", srw.status),
-				zap.Int("bytes", srw.bytes),
+				zap.Any("status", srw.status),
+				zap.Any("bytes", srw.bytes),
 				zap.Duration("duration", time.Since(start)),
 			)
 		})

@@ -9,7 +9,6 @@ run:
 output:
   formats:
     text:
-      format: colored-line-number
       path: stdout
       print-linter-name: true
       print-issued-lines: true
@@ -24,9 +23,7 @@ linters:
     - nilerr
     - nolintlint
     - tagliatelle
-    - varnamelen
     - wastedassign
-    - wsl_v5
   settings:
     funlen:
       lines: 100
@@ -41,44 +38,6 @@ linters:
       case:
         rules:
           json: snake
-    varnamelen:
-      max-distance: 8
-      min-name-length: 3
-      check-receiver: false
-      check-return: true
-      check-type-param: true
-      ignore-names:
-        - c
-        - l
-        - n
-        - b
-        - r
-        - rt
-        - id
-        - ip
-        - ok
-        - db
-      ignore-type-assert-ok: true
-      ignore-map-index-ok: true
-      ignore-chan-recv-ok: true
-      ignore-decls:
-        - t testing.T
-        - T any
-        - w http.ResponseWriter
-        - r *http.Request
-        - i int
-        - wg sync.WaitGroup
-        - ctx context.Context
-    wsl_v5:
-      strict-append: true
-      allow-assign-and-call: true
-      allow-assign-and-anything: false
-      allow-multiline-assign: true
-      force-case-trailing-whitespace: 2
-      allow-trailing-comment: true
-      allow-separated-leading-comment: true
-      allow-cuddle-declarations: false
-      force-err-cuddling: true
   exclusions:
     generated: lax
     presets:
@@ -90,7 +49,6 @@ linters:
       - linters:
           - funlen
         path: internal\/database\/(.+)\.go
-    paths:
 issues:
   uniq-by-line: true
 formatters:
