@@ -6,6 +6,8 @@ import (
 	"time"
 
 	"go.uber.org/zap"
+	"golang.org/x/net/http2"
+	"golang.org/x/net/http2/h2c"
 
 	"github.com/untea/bottom_babruysk/internal/configuration"
 	"github.com/untea/bottom_babruysk/internal/web/router"
@@ -22,7 +24,7 @@ func New(configuration *configuration.Configuration, logger *zap.Logger, depende
 
 	httpServer := &http.Server{
 		Addr:              configuration.HTTPAddress,
-		Handler:           r,
+		Handler:           h2c.NewHandler(r, &http2.Server{}),
 		ReadHeaderTimeout: 30 * time.Second,
 		ReadTimeout:       30 * time.Second,
 		WriteTimeout:      60 * time.Second,

@@ -15,9 +15,9 @@ tasks:
 
   lint:
     desc: Run golangci-lint
-    deps: [ install:lint ]
+    deps: [ install:tools ]
     cmds:
-      - golangci-lint run -c {{.LINT_CFG}}
+      - golangci-lint run -c {{.LINTER_CONFIG}}
 
   proto:gen:
     desc: Generate protobuf

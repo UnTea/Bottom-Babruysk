@@ -16,7 +16,10 @@ type statusRW struct {
 }
 
 func (w *statusRW) WriteHeader(code int) {
-	w.status = code
+	if w.status == 0 {
+		w.status = code
+	}
+
 	w.ResponseWriter.WriteHeader(code)
 }
 
@@ -29,6 +32,12 @@ func (w *statusRW) Write(b []byte) (int, error) {
 	w.bytes += n
 
 	return n, err
+}
+
+func (w *statusRW) Flush() {
+	if f, ok := w.ResponseWriter.(http.Flusher); ok {
+		f.Flush()
+	}
 }
 
 // RequestLogger кладёт request-scoped zap.Logger в контекст + логирует запрос/ответ.

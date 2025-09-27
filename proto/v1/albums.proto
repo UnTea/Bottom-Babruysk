@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package proto.v1;
 
-option go_package = "github.com/UnTea/Bottom-Babruysk/internal/transport/gen/proto/v1;protov1";
+option go_package = "github.com/untea/bottom_babruysk/internal/transport/gen/proto/v1;protov1";
 
 import "google/protobuf/timestamp.proto";
 

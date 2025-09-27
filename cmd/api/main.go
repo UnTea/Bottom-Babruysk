@@ -51,9 +51,11 @@ func main() {
 	h := handlers.New(l, &container.Services)
 
 	dependencies := router.Dependencies{
-		Logger:     l,
-		Handlers:   h,
-		EnableCORS: true,
+		Logger:           l,
+		Handlers:         h,
+		Services:         container.Services,
+		EnableCORS:       true,
+		EnableReflection: true,
 	}
 
 	srv := server.New(cfg, l, dependencies)
