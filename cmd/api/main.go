@@ -52,7 +52,7 @@ func main() {
 
 	dependencies := router.Dependencies{
 		Logger:     l,
-		Users:      h,
+		Handlers:   h,
 		EnableCORS: true,
 	}
 

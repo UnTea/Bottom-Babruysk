@@ -34,7 +34,7 @@ func (s Set[string]) StringKeys() []string {
 	return out
 }
 
-func InSetPtr[T comparable](set Set[T]) validation.Rule {
+func InSetPtr[T comparable](set Set[T]) validation.Rule { //nolint // TODO декомпозировать
 	return validation.By(func(v any) error {
 		if v == nil {
 			return nil

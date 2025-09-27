@@ -17,8 +17,8 @@ func NewUsersRepository(db *repository.Client) *UsersRepository {
 
 func (r *UsersRepository) CreateUser(ctx context.Context, request domain.CreateUserRequest) (*domain.CreateUserResponse, error) {
 	const createUserSQL = `
-		insert into users (id, email, password_hash, display_name, role)
-		values ($1, $2, $3, $4, coalesce($5::user_role, 'user'::user_role))
+		insert into users (email, password_hash, display_name, role)
+		values ($1, $2, $3, coalesce($4::user_role, 'user'::user_role))
 		returning id;
 	`
 
@@ -44,7 +44,11 @@ func (r *UsersRepository) GetUser(ctx context.Context, request domain.GetUserReq
 		where id = $1;
 	`
 
-	user, err := repository.FetchOne[domain.User](ctx, r.db.Driver(), getUserSQL, request.ID) // TODO реализовать интерфейс для fetch и прокидывать просто r.db
+	arguments := []any{
+		request.ID,
+	}
+
+	user, err := repository.FetchOne[domain.User](ctx, r.db.Driver(), getUserSQL, arguments...) // TODO реализовать интерфейс для fetch и прокидывать просто r.db
 	if err != nil {
 		return nil, err
 	}
@@ -52,8 +56,8 @@ func (r *UsersRepository) GetUser(ctx context.Context, request domain.GetUserReq
 	return &domain.GetUserResponse{User: user}, nil
 }
 
-func (r *UsersRepository) ListUsers(ctx context.Context, request domain.GetListUserRequest) (*domain.GetListUserResponse, error) {
-	const getListUserSQL = `
+func (r *UsersRepository) ListUsers(ctx context.Context, request domain.ListUsersRequest) (*domain.ListUsersResponse, error) {
+	const getListUsersSQL = `
 		with params as (
 			select
 				$1::user_role                                 as role_filter,
@@ -101,12 +105,12 @@ func (r *UsersRepository) ListUsers(ctx context.Context, request domain.GetListU
 		request.Offset,
 	}
 
-	users, err := repository.FetchMany[domain.User](ctx, r.db.Driver(), getListUserSQL, arguments...) // TODO реализовать интерфейс для fetch и прокидывать просто r.db
+	users, err := repository.FetchMany[domain.User](ctx, r.db.Driver(), getListUsersSQL, arguments...) // TODO реализовать интерфейс для fetch и прокидывать просто r.db
 	if err != nil {
 		return nil, err
 	}
 
-	return &domain.GetListUserResponse{Users: users}, nil
+	return &domain.ListUsersResponse{Users: users}, nil
 }
 
 func (r *UsersRepository) UpdateUser(ctx context.Context, request domain.UpdateUserRequest) error {

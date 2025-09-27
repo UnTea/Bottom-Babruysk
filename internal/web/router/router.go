@@ -15,7 +15,7 @@ import (
 
 type Dependencies struct {
 	Logger     *zap.Logger
-	Users      web.UsersHTTP
+	Handlers   web.HandlerHTTP
 	EnableCORS bool
 }
 
@@ -46,7 +46,8 @@ func New(dependencies Dependencies) *chi.Mux {
 	})
 
 	r.Route("/api/v1", func(api chi.Router) {
-		dependencies.Users.MountUsers(api)
+		dependencies.Handlers.MountUsers(api)
+		dependencies.Handlers.MountAlbums(api)
 	})
 
 	return r

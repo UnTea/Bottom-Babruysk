@@ -17,11 +17,6 @@ var (
 		"created_at",
 		"updated_at",
 	)
-
-	sortOrders = validatron.NewSet(
-		"asc",
-		"desc",
-	)
 )
 
 func (r *CreateUserRequest) Validate() error {
@@ -39,16 +34,12 @@ func (r *GetUserRequest) Validate() error {
 	)
 }
 
-func (r *GetListUserRequest) Validate() error {
+func (r *ListUsersRequest) Validate() error {
 	return validation.ValidateStruct(r,
 		validation.Field(&r.Limit, validation.Required, validation.Min(1)),
-		validation.Field(&r.Offset, validation.Required, validation.Min(1)),
-		validation.Field(&r.SortField, validation.Required,
-			validatron.InStringsPtr(sortableUserFields, "sort_field"),
-		),
-		validation.Field(&r.SortOrder, validation.Required,
-			validatron.InStringsPtr(sortOrders, "sort_order"),
-		),
+		validation.Field(&r.Offset, validation.Required, validation.Min(0)),
+		validation.Field(&r.SortField, validation.Required, validatron.InStringsPtr(sortableUserFields, "sort_field")),
+		validation.Field(&r.SortOrder, validation.Required, validatron.InStringsPtr(validatron.SortOrders, "sort_order")),
 		validation.Field(&r.Role, validatron.InSetPtr(roleSet)),
 	)
 }
@@ -56,9 +47,7 @@ func (r *GetListUserRequest) Validate() error {
 func (r *UpdateUserRequest) Validate() error {
 	return validation.ValidateStruct(r,
 		validation.Field(&r.ID, validation.Required),
-		validation.Field(&r.DisplayName,
-			validation.When(r.DisplayName != nil, validation.Required),
-		),
+		validation.Field(&r.DisplayName, validation.When(r.DisplayName != nil, validation.Required)),
 		validation.Field(&r.Role, validatron.InSetPtr(roleSet)),
 	)
 }

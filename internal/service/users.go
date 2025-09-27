@@ -33,7 +33,7 @@ func (s *UsersService) GetUser(ctx context.Context, request domain.GetUserReques
 	return s.repository.GetUser(ctx, request)
 }
 
-func (s *UsersService) ListUsers(ctx context.Context, request domain.GetListUserRequest) (*domain.GetListUserResponse, error) {
+func (s *UsersService) ListUsers(ctx context.Context, request domain.ListUsersRequest) (*domain.ListUsersResponse, error) {
 	err := request.Validate()
 	if err != nil {
 		return nil, err

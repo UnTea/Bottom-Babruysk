@@ -116,7 +116,7 @@ func Decode[T any](r *http.Request) (T, error) {
 
 type nameFunc = func(reflect.StructField) (name string, skip bool)
 
-func fillFrom(reflectValue reflect.Value, urlValues url.Values, nameFunc nameFunc, label string) error {
+func fillFrom(reflectValue reflect.Value, urlValues url.Values, nameFunc nameFunc, label string) error { //nolint // TODO декомпозировать
 	if reflectValue.Kind() == reflect.Pointer {
 		if reflectValue.IsNil() {
 			reflectValue.Set(reflect.New(reflectValue.Type().Elem()))
@@ -228,7 +228,7 @@ func indirect(v reflect.Value) reflect.Value {
 	return v
 }
 
-func setValue(dst reflect.Value, s string) error {
+func setValue(dst reflect.Value, str string) error { //nolint // TODO декомпозировать
 	if dst.Kind() == reflect.Pointer {
 		if dst.IsNil() {
 			dst.Set(reflect.New(dst.Type().Elem()))
@@ -239,11 +239,11 @@ func setValue(dst reflect.Value, s string) error {
 
 	switch dst.Kind() {
 	case reflect.String:
-		dst.SetString(s)
+		dst.SetString(str)
 		return nil
 
 	case reflect.Bool:
-		b, err := strconv.ParseBool(s)
+		b, err := strconv.ParseBool(str)
 		if err != nil {
 			return err
 		}
@@ -254,7 +254,7 @@ func setValue(dst reflect.Value, s string) error {
 
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 		if dst.Type().PkgPath() == "time" && dst.Type().Name() == "Duration" {
-			d, err := time.ParseDuration(s)
+			d, err := time.ParseDuration(str)
 			if err != nil {
 				return err
 			}
@@ -264,7 +264,7 @@ func setValue(dst reflect.Value, s string) error {
 			return nil
 		}
 
-		n, err := strconv.ParseInt(s, 10, dst.Type().Bits())
+		n, err := strconv.ParseInt(str, 10, dst.Type().Bits())
 		if err != nil {
 			return err
 		}
@@ -274,7 +274,7 @@ func setValue(dst reflect.Value, s string) error {
 		return nil
 
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-		n, err := strconv.ParseUint(s, 10, dst.Type().Bits())
+		n, err := strconv.ParseUint(str, 10, dst.Type().Bits())
 		if err != nil {
 			return err
 		}
@@ -284,7 +284,7 @@ func setValue(dst reflect.Value, s string) error {
 		return nil
 
 	case reflect.Float32, reflect.Float64:
-		f, err := strconv.ParseFloat(s, dst.Type().Bits())
+		f, err := strconv.ParseFloat(str, dst.Type().Bits())
 		if err != nil {
 			return err
 		}
@@ -295,7 +295,7 @@ func setValue(dst reflect.Value, s string) error {
 
 	case reflect.Struct:
 		if dst.Type().PkgPath() == "time" && dst.Type().Name() == "Time" {
-			tm, err := time.Parse(time.RFC3339, s)
+			tm, err := time.Parse(time.RFC3339, str)
 			if err != nil {
 				return err
 			}
@@ -306,11 +306,11 @@ func setValue(dst reflect.Value, s string) error {
 		}
 
 		if dst.Type().PkgPath() == "github.com/google/uuid" && dst.Type().Name() == "UUID" {
-			if err := uuid.Validate(s); err != nil {
+			if err := uuid.Validate(str); err != nil {
 				return err
 			}
 
-			u := uuid.MustParse(s)
+			u := uuid.MustParse(str)
 			dst.Set(reflect.ValueOf(u))
 
 			return nil
@@ -318,24 +318,24 @@ func setValue(dst reflect.Value, s string) error {
 
 		under := dst.Type()
 		if under.Kind() == reflect.String {
-			dst.SetString(s)
+			dst.SetString(str)
 
 			return nil
 		}
 
-		return fmt.Errorf("unsupported struct type %s", dst.Type())
+		return fmt.Errorf("unsupported struct type %str", dst.Type())
 
 	default:
 		under := dst.Type()
 
 		switch under.Kind() {
 		case reflect.String:
-			dst.SetString(s)
+			dst.SetString(str)
 
 			return nil
 
 		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-			n, err := strconv.ParseInt(s, 10, under.Bits())
+			n, err := strconv.ParseInt(str, 10, under.Bits())
 			if err != nil {
 				return err
 			}
@@ -345,7 +345,7 @@ func setValue(dst reflect.Value, s string) error {
 			return nil
 		}
 
-		return fmt.Errorf("unsupported kind %s", dst.Kind())
+		return fmt.Errorf("unsupported kind %str", dst.Kind())
 	}
 }
 

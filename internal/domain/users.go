@@ -47,7 +47,7 @@ type (
 )
 
 type (
-	GetListUserRequest struct {
+	ListUsersRequest struct {
 		Limit     *int      `db:"limit"        json:"limit,omitempty"      query:"limit"`
 		Offset    *int      `db:"offset"       json:"offset,omitempty"     query:"offset"`
 		Role      *UserRole `db:"role"         json:"role,omitempty"       query:"role"`
@@ -55,7 +55,7 @@ type (
 		SortOrder *string   `db:"sort_order"   json:"sort_order,omitempty" query:"sort_order"`
 	}
 
-	GetListUserResponse struct {
+	ListUsersResponse struct {
 		Users []*User `json:"users,omitempty"`
 	}
 )
