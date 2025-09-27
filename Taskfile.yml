@@ -19,9 +19,10 @@ tasks:
     cmds:
       - golangci-lint run -c {{.LINTER_CONFIG}}
 
-  proto:gen:
+  gen:
     desc: Generate protobuf
     deps: [ install:tools ]
     cmds:
       - buf lint
+      - buf format -w
       - buf generate

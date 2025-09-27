@@ -2,14 +2,14 @@ syntax = "proto3";
 
 package proto.v1;
 
-option go_package = "github.com/untea/bottom_babruysk/internal/transport/gen/proto/v1;protov1";
-
 import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/untea/bottom_babruysk/internal/transport/gen/proto/v1;protov1";
 
 service UsersService {
   rpc CreateUser(CreateUserRequest) returns (CreateUserResponse);
-  rpc GetUser(GetUserRequest)       returns (GetUserResponse);
-  rpc ListUsers(ListUsersRequest)   returns (ListUsersResponse);
+  rpc GetUser(GetUserRequest) returns (GetUserResponse);
+  rpc ListUsers(ListUsersRequest) returns (ListUsersResponse);
   rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse);
   rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse);
 }
