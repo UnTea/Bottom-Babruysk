@@ -49,6 +49,7 @@ message ListAlbumsRequest {
   string sort_field = 3;
   string sort_order = 4;
 }
+
 message ListAlbumsResponse {
   repeated Album albums = 1;
 }

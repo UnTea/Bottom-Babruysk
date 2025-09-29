@@ -141,8 +141,8 @@ comment on column artists.bio is 'Короткая биография/описа
 comment on column artists.created_at is 'Время создания записи артиста.';
 comment on column artists.updated_at is 'Время последнего обновления записи артиста.';
 
--- TrackAuthors - связь трек <-> артист
-create table track_authors
+-- TrackArtists- связь трек <-> артист
+create table track_artists
 (
     id         uuid primary key default gen_random_uuid(),
     track_id   uuid                           not null references tracks (id) on delete cascade,
@@ -152,13 +152,13 @@ create table track_authors
     unique (track_id, artist_id)
 );
 
-comment on table track_authors is 'Связка трек — автор: role (performer/composer/etc.) и его порядок (ord).';
+comment on table track_artists is 'Связка трек — автор: role (performer/composer/etc.) и его порядок (ord).';
 
-comment on column track_authors.id is 'Уникальный идентификатор.';
-comment on column track_authors.track_id is 'Ссылка на трек.';
-comment on column track_authors.artist_id is 'Ссылка на исполнителя.';
-comment on column track_authors.ord is 'Порядок/позиция автора в списке авторов трека.';
-comment on column track_authors.created_at is 'Время создания связи трек <-> артист.';
+comment on column track_artists.id is 'Уникальный идентификатор.';
+comment on column track_artists.track_id is 'Ссылка на трек.';
+comment on column track_artists.artist_id is 'Ссылка на исполнителя.';
+comment on column track_artists.ord is 'Порядок/позиция автора в списке авторов трека.';
+comment on column track_artists.created_at is 'Время создания связи трек <-> артист.';
 
 -- TrackFiles
 create table track_files
@@ -376,7 +376,7 @@ drop table albums;
 drop index track_files_track_id_index;
 drop table track_files;
 
-drop table track_authors;
+drop table track_artists;
 drop table artists;
 
 drop index tracks_owner_index;
