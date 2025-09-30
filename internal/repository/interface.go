@@ -21,3 +21,11 @@ type Albums interface {
 	UpdateAlbum(context.Context, domain.UpdateAlbumRequest) error
 	DeleteAlbum(context.Context, domain.DeleteAlbumRequest) error
 }
+
+type Tracks interface {
+	CreateTrack(context.Context, domain.CreateTrackRequest) (*domain.CreateTrackResponse, error)
+	GetTrack(context.Context, domain.GetTrackRequest) (*domain.GetTrackResponse, error)
+	ListTracks(context.Context, domain.ListTracksRequest) (*domain.ListTracksResponse, error)
+	UpdateTrack(context.Context, domain.UpdateTrackRequest) error
+	DeleteTrack(context.Context, domain.DeleteTrackRequest) error
+}

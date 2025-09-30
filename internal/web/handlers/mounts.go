@@ -21,3 +21,12 @@ func (h *Handler) MountAlbums(r chi.Router) {
 		r.Delete("/{id}", Handle(h, Lift(h.Services.AlbumServices.DeleteAlbum)))
 	})
 }
+
+func (h *Handler) MountTracks(r chi.Router) {
+	r.Route("/tracks", func(r chi.Router) {
+		r.Get("/", Handle(h, h.Services.TacksServices.ListTracks))
+		r.Get("/{id}", Handle(h, h.Services.TacksServices.GetTrack))
+		r.Patch("/{id}", Handle(h, Lift(h.Services.TacksServices.UpdateTrack)))
+		r.Delete("/{id}", Handle(h, Lift(h.Services.TacksServices.DeleteTrack)))
+	})
+}

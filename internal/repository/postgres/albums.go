@@ -69,16 +69,16 @@ func (r *AlbumsRepository) ListAlbums(ctx context.Context, request domain.ListAl
 			a.id, a.owner_id, a.title, a.description, a.release_date, a.created_at, a.updated_at
 		from albums a, params p
 		order by
-			case when p.sort_field = 'title'        and p.sort_order = 'asc'  then a.title        end asc  nulls last,
+			case when p.sort_field = 'title'        and p.sort_order = 'asc'  then a.title        end nulls last,
 			case when p.sort_field = 'title'        and p.sort_order = 'desc' then a.title        end desc nulls last,
 		
-			case when p.sort_field = 'release_date' and p.sort_order = 'asc'  then a.release_date end asc  nulls last,
+			case when p.sort_field = 'release_date' and p.sort_order = 'asc'  then a.release_date end nulls last,
 			case when p.sort_field = 'release_date' and p.sort_order = 'desc' then a.release_date end desc nulls last,
 		
-			case when p.sort_field = 'created_at'   and p.sort_order = 'asc'  then a.created_at   end asc  nulls last,
+			case when p.sort_field = 'created_at'   and p.sort_order = 'asc'  then a.created_at   end nulls last,
 			case when p.sort_field = 'created_at'   and p.sort_order = 'desc' then a.created_at   end desc nulls last,
 		
-			case when p.sort_field = 'updated_at'   and p.sort_order = 'asc'  then a.updated_at   end asc  nulls last,
+			case when p.sort_field = 'updated_at'   and p.sort_order = 'asc'  then a.updated_at   end nulls last,
 			case when p.sort_field = 'updated_at'   and p.sort_order = 'desc' then a.updated_at   end desc nulls last,
 		
 			a.created_at desc

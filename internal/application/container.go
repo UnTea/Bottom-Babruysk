@@ -12,11 +12,13 @@ import (
 type Services struct {
 	UsersServices *service.UsersService
 	AlbumServices *service.AlbumsService
+	TacksServices *service.TracksService
 }
 
 type Repositories struct {
 	UsersRepository  repository.Users
 	AlbumsRepository repository.Albums
+	TracksRepository repository.Tracks
 }
 
 type Container struct {
@@ -29,18 +31,22 @@ type Container struct {
 func BuildContainer(configuration *configuration.Configuration, logger *zap.Logger, dbClient *repository.Client) (*Container, error) {
 	usersRepository := postgres.NewUsersRepository(dbClient)
 	albumsRepository := postgres.NewAlbumsRepository(dbClient)
+	tracksRepository := postgres.NewTracksRepository(dbClient)
 
 	repositories := Repositories{
 		UsersRepository:  usersRepository,
 		AlbumsRepository: albumsRepository,
+		TracksRepository: tracksRepository,
 	}
 
 	usersServices := service.NewUsersService(usersRepository)
 	albumsServices := service.NewAlbumsService(albumsRepository)
+	tracksServices := service.NewTracksService(tracksRepository)
 
 	services := Services{
 		UsersServices: usersServices,
 		AlbumServices: albumsServices,
+		TacksServices: tracksServices,
 	}
 
 	container := &Container{

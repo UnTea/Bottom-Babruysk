@@ -15,9 +15,9 @@ import (
 	"github.com/untea/bottom_babruysk/internal/configuration"
 	"github.com/untea/bottom_babruysk/internal/logger"
 	"github.com/untea/bottom_babruysk/internal/repository"
-	"github.com/untea/bottom_babruysk/internal/server"
 	"github.com/untea/bottom_babruysk/internal/web/handlers"
 	"github.com/untea/bottom_babruysk/internal/web/router"
+	"github.com/untea/bottom_babruysk/internal/web/server"
 )
 
 func main() {

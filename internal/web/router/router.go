@@ -56,6 +56,7 @@ func New(dependencies Dependencies) *chi.Mux {
 	r.Route("/api/v1", func(api chi.Router) {
 		dependencies.Handlers.MountUsers(api)
 		dependencies.Handlers.MountAlbums(api)
+		dependencies.Handlers.MountTracks(api)
 	})
 
 	// CONNECT RPC
@@ -69,10 +70,16 @@ func New(dependencies Dependencies) *chi.Mux {
 
 	HandleStaticReflect(r, albumsPath, albumsHandler)
 
+	tracksServer := connect.NewTracksServer(dependencies.Services.TacksServices)
+	tracksPath, tracksHandler := protov1connect.NewTracksServiceHandler(tracksServer)
+
+	HandleStaticReflect(r, tracksPath, tracksHandler)
+
 	if dependencies.EnableReflection {
 		reflector := grpcreflect.NewStaticReflector(
 			protov1connect.UsersServiceName,
 			protov1connect.AlbumsServiceName,
+			protov1connect.TracksServiceName,
 		)
 
 		v1Path, v1Handler := grpcreflect.NewHandlerV1(reflector)

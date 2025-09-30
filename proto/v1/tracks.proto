@@ -1,0 +1,72 @@
+syntax = "proto3";
+
+package proto.v1;
+
+import "google/protobuf/duration.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/untea/bottom_babruysk/internal/transport/gen/proto/v1;protov1";
+
+service TracksService {
+  rpc GetTrack(GetTrackRequest) returns (GetTrackResponse);
+  rpc ListTracks(ListTracksRequest) returns (ListTracksResponse);
+  rpc UpdateTrack(UpdateTrackRequest) returns (UpdateTrackResponse);
+  rpc DeleteTrack(DeleteTrackRequest) returns (DeleteTrackResponse);
+}
+
+message Track {
+  string id = 1;
+  string uploader_id = 2;
+  string title = 3;
+  string subtitle = 4;
+  string description = 5;
+  google.protobuf.Duration duration = 6;
+  Visibility visibility = 7;
+  google.protobuf.Timestamp created_at = 8;
+  google.protobuf.Timestamp updated_at = 9;
+  google.protobuf.Timestamp uploaded_at = 10;
+}
+
+enum Visibility {
+  VISIBILITY_UNSPECIFIED = 0;
+  VISIBILITY_PRIVATE = 1;
+  VISIBILITY_UNLISTED = 2;
+  VISIBILITY_PUBLIC = 3;
+}
+
+message GetTrackRequest {
+  string id = 1;
+}
+
+message GetTrackResponse {
+  Track track = 1;
+}
+
+message ListTracksRequest {
+  uint32 limit = 1;
+  uint32 offset = 2;
+  string uploader_id = 3;
+  Visibility visibility = 4;
+  string sort_field = 5;
+  string sort_order = 6;
+}
+
+message ListTracksResponse {
+  repeated Track tracks = 1;
+}
+
+message UpdateTrackRequest {
+  string id = 1;
+  optional string title = 2;
+  optional string subtitle = 3;
+  optional string description = 4;
+  optional Visibility visibility = 5;
+}
+
+message UpdateTrackResponse {}
+
+message DeleteTrackRequest {
+  string id = 1;
+}
+
+message DeleteTrackResponse {}

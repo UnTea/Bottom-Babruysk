@@ -31,7 +31,7 @@ type (
 
 type (
 	GetAlbumRequest struct {
-		ID uuid.UUID `db:"id" json:"id,omitempty" path:"id"`
+		ID *uuid.UUID `db:"id" json:"id,omitempty" path:"id"`
 	}
 
 	GetAlbumResponse struct {

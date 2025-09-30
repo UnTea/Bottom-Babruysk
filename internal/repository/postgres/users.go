@@ -95,7 +95,7 @@ func (r *UsersRepository) ListUsers(ctx context.Context, request domain.ListUser
 			u.created_at desc
 		limit (select limit_val from params)
 		offset (select offset_val from params);
-`
+	`
 
 	arguments := []any{
 		request.Role,

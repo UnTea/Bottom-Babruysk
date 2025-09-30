@@ -6,11 +6,12 @@ import (
 	"github.com/google/uuid"
 )
 
-type UserRole string
+type UserRole int32
 
 const (
-	UserRoleUser  UserRole = "user"
-	UserRoleAdmin UserRole = "admin"
+	UserRoleUnspecified = "unspecified"
+	UserRoleUser        = "user"
+	UserRoleAdmin       = "admin"
 )
 
 type User struct {
@@ -38,7 +39,7 @@ type (
 
 type (
 	GetUserRequest struct {
-		ID uuid.UUID `db:"id" json:"id,omitempty" path:"id"`
+		ID *uuid.UUID `db:"id" json:"id,omitempty" path:"id"`
 	}
 
 	GetUserResponse struct {
@@ -70,6 +71,6 @@ type (
 
 type (
 	DeleteUserRequest struct {
-		ID uuid.UUID `db:"id" json:"-" path:"id"`
+		ID *uuid.UUID `db:"id" json:"-" path:"id"`
 	}
 )

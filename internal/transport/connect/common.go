@@ -2,76 +2,106 @@ package connect
 
 import (
 	"errors"
-	"time"
 
 	"connectrpc.com/connect"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/google/uuid"
-	"google.golang.org/protobuf/types/known/timestamppb"
 
-	"github.com/untea/bottom_babruysk/internal/domain"
 	"github.com/untea/bottom_babruysk/internal/repository"
 )
 
-func tsPtr(t *time.Time) *timestamppb.Timestamp {
-	if t == nil {
+// Ptr если нужно получить указатель на значение.
+func Ptr[T any](v T) *T {
+	return &v
+}
+
+// PtrIfNonZero если нужно отделить "nil" value от "zero" type value, ноль трактуется как значение не задано.
+func PtrIfNonZero[T comparable](v T) *T {
+	var z T
+
+	if v == z {
 		return nil
 	}
 
-	return timestamppb.New(t.UTC())
+	return &v
 }
 
-func timePtrFromTS(ts *timestamppb.Timestamp) *time.Time {
-	if ts == nil {
-		return nil
+// ValueOrZero если нужно получить само значение, а nil трактовать как ноль типа.
+func ValueOrZero[T any](p *T) (z T) {
+	if p != nil {
+		z = *p
 	}
 
-	t := ts.AsTime().UTC()
-
-	return &t
+	return
 }
 
-func uuidStr(u *uuid.UUID) string {
-	if u == nil {
+// ValueOK если нужно знать, пришло ли значение.
+func ValueOK[T any](p *T) (T, bool) {
+	if p == nil {
+		var z T
+
+		return z, false
+	}
+
+	return *p, true
+}
+
+// ValueOr если нужно значение с явным дефолтом, если nil.
+func ValueOr[T any](p *T, def T) T {
+	if p != nil {
+		return *p
+	}
+
+	return def
+}
+
+// UUIDToString конвертация uuid.UUID к string.
+//
+//	В случае uuid.Nil вернёт пустую строку.
+func UUIDToString(u uuid.UUID) string {
+	if u == uuid.Nil {
 		return ""
 	}
 
 	return u.String()
 }
 
-func uuidPtrFromStr(s string) *uuid.UUID {
-	if s == "" {
-		return nil
+// UUIDPtrToString конвертация *uuid.UUID к string.
+//
+//	В случае nil или uuid.Nil возвращается пустая строка.
+func UUIDPtrToString(u *uuid.UUID) string {
+	if u == nil || *u == uuid.Nil {
+		return ""
 	}
 
+	return u.String()
+}
+
+// StringToUUID конвертация строки к uuid.UUID.
+//
+//	В случае пустой или невалидной строки вернёт uuid.Nil.
+func StringToUUID(s string) uuid.UUID {
+	if s == "" {
+		return uuid.Nil
+	}
+
+	u, err := uuid.Parse(s)
+	if err != nil {
+		return uuid.Nil
+	}
+
+	return u
+}
+
+// StringToUUIDPtr конвертация строки к *uuid.UUID.
+// Пустая или невалидная строка -> nil.
+func StringToUUIDPtr(s string) *uuid.UUID {
 	u, err := uuid.Parse(s)
 	if err != nil {
 		return nil
 	}
 
 	return &u
-}
-
-func uuidFromStr(s string) uuid.UUID {
-	u, _ := uuid.Parse(s)
-
-	return u
-}
-
-func strOrEmpty(p *string) string {
-	if p == nil {
-		return ""
-	}
-
-	return *p
-}
-
-func strPtrOrNil(s string) *string {
-	if s == "" {
-		return nil
-	}
-
-	return &s
 }
 
 func toConnectErr(err error) error {
@@ -90,16 +120,4 @@ func toConnectErr(err error) error {
 	}
 
 	return connect.NewError(connect.CodeInternal, err)
-}
-
-func intPtr(v int) *int {
-	return &v
-}
-
-func derefUserRole(r *domain.UserRole) domain.UserRole {
-	if r == nil {
-		return ""
-	}
-
-	return *r
 }
