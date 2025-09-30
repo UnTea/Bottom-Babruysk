@@ -20,10 +20,10 @@ func NewUsersServer(usersService *service.UsersService) *UsersServer {
 
 func (s *UsersServer) CreateUser(ctx context.Context, request *connect.Request[protov1.CreateUserRequest]) (*connect.Response[protov1.CreateUserResponse], error) {
 	response, err := s.usersService.CreateUser(ctx, domain.CreateUserRequest{
-		Email:        Ptr(request.Msg.GetEmail()),
-		PasswordHash: Ptr(request.Msg.GetPasswordHash()),
-		DisplayName:  Ptr(request.Msg.GetDisplayName()),
-		Role:         (*domain.UserRole)(Ptr(request.Msg.GetRole())),
+		Email:        Ptr(request.Msg.Email),
+		PasswordHash: Ptr(request.Msg.PasswordHash),
+		DisplayName:  Ptr(request.Msg.DisplayName),
+		Role:         ProtoRolePtrToDomain(Ptr(request.Msg.Role)),
 	})
 	if err != nil {
 		return nil, toConnectErr(err)
@@ -36,7 +36,7 @@ func (s *UsersServer) CreateUser(ctx context.Context, request *connect.Request[p
 
 func (s *UsersServer) GetUser(ctx context.Context, request *connect.Request[protov1.GetUserRequest]) (*connect.Response[protov1.GetUserResponse], error) {
 	response, err := s.usersService.GetUser(ctx, domain.GetUserRequest{
-		ID: StringToUUIDPtr(request.Msg.GetId()),
+		ID: StringToUUIDPtr(request.Msg.Id),
 	})
 	if err != nil {
 		return nil, toConnectErr(err)
@@ -46,31 +46,31 @@ func (s *UsersServer) GetUser(ctx context.Context, request *connect.Request[prot
 }
 
 func (s *UsersServer) ListUsers(ctx context.Context, request *connect.Request[protov1.ListUsersRequest]) (*connect.Response[protov1.ListUsersResponse], error) {
-	out, err := s.usersService.ListUsers(ctx, domain.ListUsersRequest{
-		Limit:     Ptr(int(request.Msg.GetLimit())),
-		Offset:    Ptr(int(request.Msg.GetOffset())),
-		Role:      (*domain.UserRole)(Ptr(request.Msg.GetRole())),
-		SortField: Ptr(request.Msg.GetSortField()),
-		SortOrder: Ptr(request.Msg.GetSortOrder()),
+	response, err := s.usersService.ListUsers(ctx, domain.ListUsersRequest{
+		Limit:     Ptr(int(request.Msg.Limit)),
+		Offset:    Ptr(int(request.Msg.Offset)),
+		Role:      ProtoRolePtrToDomain(Ptr(request.Msg.Role)),
+		SortField: Ptr(request.Msg.SortField),
+		SortOrder: Ptr(request.Msg.SortOrder),
 	})
 	if err != nil {
 		return nil, toConnectErr(err)
 	}
 
-	response := &protov1.ListUsersResponse{Users: make([]*protov1.User, 0, len(out.Users))}
+	result := &protov1.ListUsersResponse{Users: make([]*protov1.User, 0, len(response.Users))}
 
-	for _, user := range out.Users {
-		response.Users = append(response.Users, toProtoUser(user))
+	for _, user := range response.Users {
+		result.Users = append(result.Users, toProtoUser(user))
 	}
 
-	return connect.NewResponse(response), nil
+	return connect.NewResponse(result), nil
 }
 
 func (s *UsersServer) UpdateUser(ctx context.Context, request *connect.Request[protov1.UpdateUserRequest]) (*connect.Response[protov1.UpdateUserResponse], error) {
 	err := s.usersService.UpdateUser(ctx, domain.UpdateUserRequest{
-		ID:          StringToUUIDPtr(request.Msg.GetId()),
-		DisplayName: Ptr(request.Msg.GetDisplayName()),
-		Role:        (*domain.UserRole)(Ptr(request.Msg.GetRole())),
+		ID:          StringToUUIDPtr(request.Msg.Id),
+		DisplayName: request.Msg.DisplayName,
+		Role:        ProtoRolePtrToDomain(request.Msg.Role),
 	})
 	if err != nil {
 		return nil, toConnectErr(err)
@@ -81,7 +81,7 @@ func (s *UsersServer) UpdateUser(ctx context.Context, request *connect.Request[p
 
 func (s *UsersServer) DeleteUser(ctx context.Context, request *connect.Request[protov1.DeleteUserRequest]) (*connect.Response[protov1.DeleteUserResponse], error) {
 	err := s.usersService.DeleteUser(ctx, domain.DeleteUserRequest{
-		ID: StringToUUIDPtr(request.Msg.GetId()),
+		ID: StringToUUIDPtr(request.Msg.Id),
 	})
 	if err != nil {
 		return nil, toConnectErr(err)

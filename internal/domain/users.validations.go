@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	roleSet = validatron.NewSet(UserRoleUser, UserRoleAdmin)
+	roleSet = validatron.NewSet(RoleUser, RoleAdmin)
 
 	sortableUserFields = validatron.NewSet(
 		"email",

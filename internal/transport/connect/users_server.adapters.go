@@ -22,17 +22,17 @@ func toProtoUser(user *domain.User) *protov1.User {
 	}
 }
 
-func ProtoRolePtrToDomain(p *protov1.Role) *domain.UserRole {
+func ProtoRolePtrToDomain(p *protov1.Role) *domain.Role {
 	if p == nil {
 		return nil
 	}
 
-	v := domain.UserRole(*p)
+	v := domain.Role(*p)
 
 	return &v
 }
 
-func DomainRoleToProto(role *domain.UserRole) protov1.Role {
+func DomainRoleToProto(role *domain.Role) protov1.Role {
 	if role == nil {
 		return protov1.Role_ROLE_UNSPECIFIED
 	}

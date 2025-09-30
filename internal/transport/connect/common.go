@@ -94,7 +94,8 @@ func StringToUUID(s string) uuid.UUID {
 }
 
 // StringToUUIDPtr конвертация строки к *uuid.UUID.
-// Пустая или невалидная строка -> nil.
+//
+//	В случае пустой или невалидная строка вернёт nil.
 func StringToUUIDPtr(s string) *uuid.UUID {
 	u, err := uuid.Parse(s)
 	if err != nil {

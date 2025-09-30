@@ -20,10 +20,10 @@ func NewAlbumsServer(albumsService *service.AlbumsService) *AlbumsServer {
 
 func (s *AlbumsServer) CreateAlbum(ctx context.Context, request *connect.Request[protov1.CreateAlbumRequest]) (*connect.Response[protov1.CreateAlbumResponse], error) {
 	response, err := s.albumsService.CreateAlbum(ctx, domain.CreateAlbumRequest{
-		OwnerID:     StringToUUIDPtr(request.Msg.GetOwnerId()),
-		Title:       Ptr(request.Msg.GetTitle()),
-		Description: Ptr(request.Msg.GetDescription()),
-		ReleaseDate: TimestamppbToTime(request.Msg.GetReleaseDate()),
+		OwnerID:     StringToUUIDPtr(request.Msg.OwnerId),
+		Title:       Ptr(request.Msg.Title),
+		Description: Ptr(request.Msg.Description),
+		ReleaseDate: TimestamppbToTime(request.Msg.ReleaseDate),
 	})
 	if err != nil {
 		return nil, toConnectErr(err)
@@ -36,7 +36,7 @@ func (s *AlbumsServer) CreateAlbum(ctx context.Context, request *connect.Request
 
 func (s *AlbumsServer) GetAlbum(ctx context.Context, request *connect.Request[protov1.GetAlbumRequest]) (*connect.Response[protov1.GetAlbumResponse], error) {
 	response, err := s.albumsService.GetAlbum(ctx, domain.GetAlbumRequest{
-		ID: StringToUUIDPtr(request.Msg.GetId()),
+		ID: StringToUUIDPtr(request.Msg.Id),
 	})
 	if err != nil {
 		return nil, toConnectErr(err)
@@ -47,10 +47,10 @@ func (s *AlbumsServer) GetAlbum(ctx context.Context, request *connect.Request[pr
 
 func (s *AlbumsServer) ListAlbums(ctx context.Context, request *connect.Request[protov1.ListAlbumsRequest]) (*connect.Response[protov1.ListAlbumsResponse], error) {
 	response, err := s.albumsService.ListAlbums(ctx, domain.ListAlbumsRequest{
-		Limit:     Ptr(int(request.Msg.GetLimit())),
-		Offset:    Ptr(int(request.Msg.GetOffset())),
-		SortField: Ptr(request.Msg.GetSortField()),
-		SortOrder: Ptr(request.Msg.GetSortOrder()),
+		Limit:     Ptr(int(request.Msg.Limit)),
+		Offset:    Ptr(int(request.Msg.Offset)),
+		SortField: Ptr(request.Msg.SortField),
+		SortOrder: Ptr(request.Msg.SortOrder),
 	})
 	if err != nil {
 		return nil, toConnectErr(err)
@@ -69,10 +69,10 @@ func (s *AlbumsServer) ListAlbums(ctx context.Context, request *connect.Request[
 
 func (s *AlbumsServer) UpdateAlbum(ctx context.Context, request *connect.Request[protov1.UpdateAlbumRequest]) (*connect.Response[protov1.UpdateAlbumResponse], error) {
 	err := s.albumsService.UpdateAlbum(ctx, domain.UpdateAlbumRequest{
-		ID:          StringToUUIDPtr(request.Msg.GetId()),
-		Title:       Ptr(request.Msg.GetTitle()),
-		Description: Ptr(request.Msg.GetDescription()),
-		ReleaseDate: TimestamppbToTime(request.Msg.GetReleaseDate()),
+		ID:          StringToUUIDPtr(request.Msg.Id),
+		Title:       request.Msg.Title,
+		Description: request.Msg.Description,
+		ReleaseDate: TimestamppbToTime(request.Msg.ReleaseDate),
 	})
 	if err != nil {
 		return nil, toConnectErr(err)
@@ -83,7 +83,7 @@ func (s *AlbumsServer) UpdateAlbum(ctx context.Context, request *connect.Request
 
 func (s *AlbumsServer) DeleteAlbum(ctx context.Context, request *connect.Request[protov1.DeleteAlbumRequest]) (*connect.Response[protov1.DeleteAlbumResponse], error) {
 	err := s.albumsService.DeleteAlbum(ctx, domain.DeleteAlbumRequest{
-		ID: StringToUUIDPtr(request.Msg.GetId()),
+		ID: StringToUUIDPtr(request.Msg.Id),
 	})
 	if err != nil {
 		return nil, toConnectErr(err)

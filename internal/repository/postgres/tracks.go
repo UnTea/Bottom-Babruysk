@@ -42,7 +42,10 @@ func (r *TracksRepository) CreateTrack(ctx context.Context, request domain.Creat
 
 func (r *TracksRepository) GetTrack(ctx context.Context, request domain.GetTrackRequest) (*domain.GetTrackResponse, error) {
 	const getTracksQL = `
-		select id, uploader_id, title, subtitle, description, duration, visibility, created_at, updated_at, uploaded_at
+		select 
+			id, uploader_id, title, subtitle, description, duration, 
+			visibility::text as visibility, 
+			created_at, updated_at, uploaded_at
 		from tracks
 		where id = $1;
 	`
@@ -62,41 +65,43 @@ func (r *TracksRepository) GetTrack(ctx context.Context, request domain.GetTrack
 func (r *TracksRepository) ListTracks(ctx context.Context, request domain.ListTracksRequest) (*domain.ListTracksResponse, error) {
 	const getListTracksSQL = `
 						with params as (
-							select
-								$1::uuid                                      as uploader_filter,
-								$2::visibility                                as visibility_filter,
-								coalesce(nullif(lower($3), ''), 'created_at') as sort_field,
-								coalesce(nullif(lower($4), ''), 'desc')       as sort_order,
-								greatest(coalesce($5, 50), 1)                 as limit_val,
-								greatest(coalesce($6, 0), 0)                  as offset_val
-						)
-						select
-							t.id, t.uploader_id, t.title, t.subtitle, t.description, t.duration, t.visibility, t.created_at, t.updated_at, t.uploaded_at
-						from tracks t, params p
-						where
-							(p.uploader_filter is null or t.uploader_id = p.uploader_filter)
-							and (p.visibility_filter is null or t.visibility = p.visibility_filter)
-						order by
-							-- title
-							case when p.sort_field = 'title'        and p.sort_order = 'asc'  then t.title       end nulls last,
-							case when p.sort_field = 'title'        and p.sort_order = 'desc' then t.title       end desc nulls last,
-				
-							-- uploaded_at
-							case when p.sort_field = 'uploaded_at'  and p.sort_order = 'asc'  then t.uploaded_at end nulls last,
-							case when p.sort_field = 'uploaded_at'  and p.sort_order = 'desc' then t.uploaded_at end desc nulls last,
-				
-							-- created_at
-							case when p.sort_field = 'created_at'   and p.sort_order = 'asc'  then t.created_at  end nulls last,
-							case when p.sort_field = 'created_at'   and p.sort_order = 'desc' then t.created_at  end desc nulls last,
-				
-							-- updated_at
-							case when p.sort_field = 'updated_at'   and p.sort_order = 'asc'  then t.updated_at  end nulls last,
-							case when p.sort_field = 'updated_at'   and p.sort_order = 'desc' then t.updated_at  end desc nulls last,
-				
-							t.created_at desc
-						limit (select limit_val from params)
-						offset (select offset_val from params);
-					`
+			select
+				$1::uuid                                      as uploader_filter,
+				$2::visibility                                as visibility_filter,
+				coalesce(nullif(lower($3), ''), 'created_at') as sort_field,
+				coalesce(nullif(lower($4), ''), 'desc')       as sort_order,
+				greatest(coalesce($5, 50), 1)                 as limit_val,
+				greatest(coalesce($6, 0), 0)                  as offset_val
+		)
+		select
+			t.id, t.uploader_id, t.title, t.subtitle, t.description, t.duration,
+			t.visibility::text as visibility,
+			t.created_at, t.updated_at, t.uploaded_at
+		from tracks t, params p
+		where
+			(p.uploader_filter is null or t.uploader_id = p.uploader_filter)
+			and (p.visibility_filter is null or t.visibility = p.visibility_filter)
+		order by
+			-- title
+			case when p.sort_field = 'title'        and p.sort_order = 'asc'  then t.title        end asc  nulls last,
+			case when p.sort_field = 'title'        and p.sort_order = 'desc' then t.title        end desc nulls last,
+
+			-- uploaded_at
+			case when p.sort_field = 'uploaded_at'  and p.sort_order = 'asc'  then t.uploaded_at  end asc  nulls last,
+			case when p.sort_field = 'uploaded_at'  and p.sort_order = 'desc' then t.uploaded_at  end desc nulls last,
+
+			-- created_at
+			case when p.sort_field = 'created_at'   and p.sort_order = 'asc'  then t.created_at   end asc  nulls last,
+			case when p.sort_field = 'created_at'   and p.sort_order = 'desc' then t.created_at   end desc nulls last,
+
+			-- updated_at
+			case when p.sort_field = 'updated_at'   and p.sort_order = 'asc'  then t.updated_at   end asc  nulls last,
+			case when p.sort_field = 'updated_at'   and p.sort_order = 'desc' then t.updated_at   end desc nulls last,
+
+			t.created_at desc
+		limit (select limit_val from params)
+		offset (select offset_val from params);
+	`
 
 	arguments := []any{
 		request.Limit,

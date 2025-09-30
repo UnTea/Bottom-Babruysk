@@ -6,12 +6,12 @@ import (
 	"github.com/google/uuid"
 )
 
-type UserRole int32
+type Role int32
 
 const (
-	UserRoleUnspecified = "unspecified"
-	UserRoleUser        = "user"
-	UserRoleAdmin       = "admin"
+	RoleUnspecified = "unspecified"
+	RoleUser        = "user"
+	RoleAdmin       = "admin"
 )
 
 type User struct {
@@ -19,17 +19,17 @@ type User struct {
 	Email        *string    `db:"email"         json:"email,omitempty"`
 	PasswordHash *string    `db:"password_hash" json:"password_hash,omitempty"`
 	DisplayName  *string    `db:"display_name"  json:"display_name,omitempty"`
-	Role         *UserRole  `db:"role"          json:"role,omitempty"`
+	Role         *Role      `db:"role"          json:"role,omitempty"`
 	CreatedAt    *time.Time `db:"created_at"    json:"created_at,omitempty"`
 	UpdatedAt    *time.Time `db:"updated_at"    json:"updated_at,omitempty"`
 }
 
 type (
 	CreateUserRequest struct {
-		Email        *string   `db:"email"         json:"email,omitempty"`
-		PasswordHash *string   `db:"password_hash" json:"password_hash,omitempty"`
-		DisplayName  *string   `db:"display_name"  json:"display_name,omitempty"`
-		Role         *UserRole `db:"role"          json:"role,omitempty"`
+		Email        *string `db:"email"         json:"email,omitempty"`
+		PasswordHash *string `db:"password_hash" json:"password_hash,omitempty"`
+		DisplayName  *string `db:"display_name"  json:"display_name,omitempty"`
+		Role         *Role   `db:"role"          json:"role,omitempty"`
 	}
 
 	CreateUserResponse struct {
@@ -49,11 +49,11 @@ type (
 
 type (
 	ListUsersRequest struct {
-		Limit     *int      `db:"limit"        json:"limit,omitempty"      query:"limit"`
-		Offset    *int      `db:"offset"       json:"offset,omitempty"     query:"offset"`
-		Role      *UserRole `db:"role"         json:"role,omitempty"       query:"role"`
-		SortField *string   `db:"sort_field"   json:"sort_field,omitempty" query:"sort_field"`
-		SortOrder *string   `db:"sort_order"   json:"sort_order,omitempty" query:"sort_order"`
+		Limit     *int    `db:"limit"        json:"limit,omitempty"      query:"limit"`
+		Offset    *int    `db:"offset"       json:"offset,omitempty"     query:"offset"`
+		Role      *Role   `db:"role"         json:"role,omitempty"       query:"role"`
+		SortField *string `db:"sort_field"   json:"sort_field,omitempty" query:"sort_field"`
+		SortOrder *string `db:"sort_order"   json:"sort_order,omitempty" query:"sort_order"`
 	}
 
 	ListUsersResponse struct {
@@ -65,7 +65,7 @@ type (
 	UpdateUserRequest struct {
 		ID          *uuid.UUID `db:"id"           json:"-" path:"id"`
 		DisplayName *string    `db:"display_name" json:"-" query:"display_name"`
-		Role        *UserRole  `db:"role"         json:"-" query:"role"`
+		Role        *Role      `db:"role"         json:"-" query:"role"`
 	}
 )
 
