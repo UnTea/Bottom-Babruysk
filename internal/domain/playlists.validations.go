@@ -7,57 +7,48 @@ import (
 )
 
 var (
-	visibilitySet = validatron.NewSet(VisibilityPrivate, VisibilityUnlisted, VisibilityPublic)
-
-	SortableTrackFields = validatron.NewSet(
+	playlistSortableFields = validatron.NewSet(
 		"title",
-		"subtitle",
-		"visibility",
-		"uploaded_at",
 		"created_at",
 		"updated_at",
 	)
 )
 
-func (r *CreateTrackRequest) Validate() error {
+func (r *CreatePlaylistRequest) Validate() error {
 	return validation.ValidateStruct(r,
-		validation.Field(&r.UploaderID, validation.Required),
+		validation.Field(&r.OwnerID, validation.Required),
 		validation.Field(&r.Title, validation.Required),
-		validation.Field(&r.Subtitle, validation.Required),
 		validation.Field(&r.Description, validation.Required),
-		validation.Field(&r.Duration, validation.Required),
-		validation.Field(&r.Visibility, validatron.InSetPtr(visibilitySet)),
-		validation.Field(&r.UploadedAt, validation.Required),
+		validation.Field(&r.Visibility, validation.When(r.Visibility != nil, validatron.InSetPtr(visibilitySet))),
 	)
 }
 
-func (r *GetTrackRequest) Validate() error {
+func (r *GetPlaylistRequest) Validate() error {
 	return validation.ValidateStruct(r,
 		validation.Field(&r.ID, validation.Required),
 	)
 }
 
-func (r *ListTracksRequest) Validate() error {
+func (r *ListPlaylistsRequest) Validate() error {
 	return validation.ValidateStruct(r,
 		validation.Field(&r.Limit, validation.Required, validation.Min(1)),
 		validation.Field(&r.Offset, validation.Required, validation.Min(0)),
-		validation.Field(&r.SortField, validation.Required, validatron.InStringsPtr(SortableTrackFields, "sort_field")),
+		validation.Field(&r.SortField, validation.Required, validatron.InStringsPtr(playlistSortableFields, "sort_field")),
 		validation.Field(&r.SortOrder, validation.Required, validatron.InStringsPtr(validatron.SortOrders, "sort_order")),
 		validation.Field(&r.Visibility, validation.When(r.Visibility != nil, validatron.InSetPtr(visibilitySet))),
 	)
 }
 
-func (r *UpdateTrackRequest) Validate() error {
+func (r *UpdatePlaylistRequest) Validate() error {
 	return validation.ValidateStruct(r,
 		validation.Field(&r.ID, validation.Required),
 		validation.Field(&r.Title, validation.When(r.Title != nil, validation.Required)),
-		validation.Field(&r.Subtitle, validation.When(r.Subtitle != nil, validation.Required)),
 		validation.Field(&r.Description, validation.When(r.Description != nil, validation.Required)),
 		validation.Field(&r.Visibility, validation.When(r.Visibility != nil, validatron.InSetPtr(visibilitySet))),
 	)
 }
 
-func (r *DeleteTrackRequest) Validate() error {
+func (r *DeletePlaylistRequest) Validate() error {
 	return validation.ValidateStruct(r,
 		validation.Field(&r.ID, validation.Required),
 	)

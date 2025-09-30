@@ -72,24 +72,19 @@ func (r *UsersRepository) ListUsers(ctx context.Context, request domain.ListUser
 		where
 			(p.role_filter is null or u.role = p.role_filter)
 		order by
-			-- email
-			case when p.sort_field = 'email'        and p.sort_order = 'asc'  then u.email        end asc  nulls last,
+			case when p.sort_field = 'email'        and p.sort_order = 'asc'  then u.email        end nulls last,
 			case when p.sort_field = 'email'        and p.sort_order = 'desc' then u.email        end desc nulls last,
 		
-			-- display_name
-			case when p.sort_field = 'display_name' and p.sort_order = 'asc'  then u.display_name end asc  nulls last,
+			case when p.sort_field = 'display_name' and p.sort_order = 'asc'  then u.display_name end nulls last,
 			case when p.sort_field = 'display_name' and p.sort_order = 'desc' then u.display_name end desc nulls last,
 		
-			-- role
-			case when p.sort_field = 'role'         and p.sort_order = 'asc'  then u.role::text   end asc  nulls last,
+			case when p.sort_field = 'role'         and p.sort_order = 'asc'  then u.role::text   end nulls last,
 			case when p.sort_field = 'role'         and p.sort_order = 'desc' then u.role::text   end desc nulls last,
 		
-			-- created_at
-			case when p.sort_field = 'created_at'   and p.sort_order = 'asc'  then u.created_at   end asc  nulls last,
+			case when p.sort_field = 'created_at'   and p.sort_order = 'asc'  then u.created_at   end nulls last,
 			case when p.sort_field = 'created_at'   and p.sort_order = 'desc' then u.created_at   end desc nulls last,
 		
-			-- updated_at
-			case when p.sort_field = 'updated_at'   and p.sort_order = 'asc'  then u.updated_at   end asc  nulls last,
+			case when p.sort_field = 'updated_at'   and p.sort_order = 'asc'  then u.updated_at   end nulls last,
 			case when p.sort_field = 'updated_at'   and p.sort_order = 'desc' then u.updated_at   end desc nulls last,
 
 			u.created_at desc

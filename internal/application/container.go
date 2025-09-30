@@ -10,15 +10,17 @@ import (
 )
 
 type Services struct {
-	UsersServices *service.UsersService
-	AlbumServices *service.AlbumsService
-	TacksServices *service.TracksService
+	UsersServices    *service.UsersService
+	AlbumServices    *service.AlbumsService
+	TacksServices    *service.TracksService
+	PlaylistsService *service.PlaylistsService
 }
 
 type Repositories struct {
-	UsersRepository  repository.Users
-	AlbumsRepository repository.Albums
-	TracksRepository repository.Tracks
+	UsersRepository     repository.Users
+	AlbumsRepository    repository.Albums
+	TracksRepository    repository.Tracks
+	PlaylistsRepository repository.Playlists
 }
 
 type Container struct {
@@ -32,21 +34,25 @@ func BuildContainer(configuration *configuration.Configuration, logger *zap.Logg
 	usersRepository := postgres.NewUsersRepository(dbClient)
 	albumsRepository := postgres.NewAlbumsRepository(dbClient)
 	tracksRepository := postgres.NewTracksRepository(dbClient)
+	playlistsRepository := postgres.NewPlaylistsRepository(dbClient)
 
 	repositories := Repositories{
-		UsersRepository:  usersRepository,
-		AlbumsRepository: albumsRepository,
-		TracksRepository: tracksRepository,
+		UsersRepository:     usersRepository,
+		AlbumsRepository:    albumsRepository,
+		TracksRepository:    tracksRepository,
+		PlaylistsRepository: playlistsRepository,
 	}
 
 	usersServices := service.NewUsersService(usersRepository)
 	albumsServices := service.NewAlbumsService(albumsRepository)
 	tracksServices := service.NewTracksService(tracksRepository)
+	playlistsServices := service.NewPlaylistsService(playlistsRepository)
 
 	services := Services{
-		UsersServices: usersServices,
-		AlbumServices: albumsServices,
-		TacksServices: tracksServices,
+		UsersServices:    usersServices,
+		AlbumServices:    albumsServices,
+		TacksServices:    tracksServices,
+		PlaylistsService: playlistsServices,
 	}
 
 	container := &Container{

@@ -29,3 +29,11 @@ type Tracks interface {
 	UpdateTrack(context.Context, domain.UpdateTrackRequest) error
 	DeleteTrack(context.Context, domain.DeleteTrackRequest) error
 }
+
+type Playlists interface {
+	CreatePlaylist(context.Context, domain.CreatePlaylistRequest) (*domain.CreatePlaylistResponse, error)
+	GetPlaylist(context.Context, domain.GetPlaylistRequest) (*domain.GetPlaylistResponse, error)
+	ListPlaylists(context.Context, domain.ListPlaylistsRequest) (*domain.ListPlaylistsResponse, error)
+	UpdatePlaylist(context.Context, domain.UpdatePlaylistRequest) error
+	DeletePlaylist(context.Context, domain.DeletePlaylistRequest) error
+}

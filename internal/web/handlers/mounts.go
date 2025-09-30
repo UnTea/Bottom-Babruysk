@@ -30,3 +30,13 @@ func (h *Handler) MountTracks(r chi.Router) {
 		r.Delete("/{id}", Handle(h, Lift(h.Services.TacksServices.DeleteTrack)))
 	})
 }
+
+func (h *Handler) MountPlaylists(r chi.Router) {
+	r.Route("/playlist", func(r chi.Router) {
+		r.Post("/", Handle(h, h.Services.PlaylistsService.CreatePlaylist))
+		r.Get("/", Handle(h, h.Services.PlaylistsService.ListPlaylists))
+		r.Get("/{id}", Handle(h, h.Services.PlaylistsService.GetPlaylist))
+		r.Patch("/{id}", Handle(h, Lift(h.Services.PlaylistsService.UpdatePlaylist)))
+		r.Delete("/{id}", Handle(h, Lift(h.Services.PlaylistsService.DeletePlaylist)))
+	})
+}

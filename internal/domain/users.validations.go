@@ -40,7 +40,7 @@ func (r *ListUsersRequest) Validate() error {
 		validation.Field(&r.Offset, validation.Required, validation.Min(0)),
 		validation.Field(&r.SortField, validation.Required, validatron.InStringsPtr(sortableUserFields, "sort_field")),
 		validation.Field(&r.SortOrder, validation.Required, validatron.InStringsPtr(validatron.SortOrders, "sort_order")),
-		validation.Field(&r.Role, validatron.InSetPtr(roleSet)),
+		validation.Field(&r.Role, validation.When(r.Role != nil, validatron.InSetPtr(roleSet))),
 	)
 }
 
@@ -48,7 +48,7 @@ func (r *UpdateUserRequest) Validate() error {
 	return validation.ValidateStruct(r,
 		validation.Field(&r.ID, validation.Required),
 		validation.Field(&r.DisplayName, validation.When(r.DisplayName != nil, validation.Required)),
-		validation.Field(&r.Role, validatron.InSetPtr(roleSet)),
+		validation.Field(&r.Role, validation.When(r.Role != nil, validatron.InSetPtr(roleSet))),
 	)
 }
 

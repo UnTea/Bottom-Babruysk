@@ -64,7 +64,7 @@ func (r *TracksRepository) GetTrack(ctx context.Context, request domain.GetTrack
 
 func (r *TracksRepository) ListTracks(ctx context.Context, request domain.ListTracksRequest) (*domain.ListTracksResponse, error) {
 	const getListTracksSQL = `
-						with params as (
+		with params as (
 			select
 				$1::uuid                                      as uploader_filter,
 				$2::visibility                                as visibility_filter,
@@ -82,21 +82,17 @@ func (r *TracksRepository) ListTracks(ctx context.Context, request domain.ListTr
 			(p.uploader_filter is null or t.uploader_id = p.uploader_filter)
 			and (p.visibility_filter is null or t.visibility = p.visibility_filter)
 		order by
-			-- title
-			case when p.sort_field = 'title'        and p.sort_order = 'asc'  then t.title        end asc  nulls last,
-			case when p.sort_field = 'title'        and p.sort_order = 'desc' then t.title        end desc nulls last,
+			case when p.sort_field = 'title'       and p.sort_order = 'asc'  then t.title       end nulls last,
+			case when p.sort_field = 'title'       and p.sort_order = 'desc' then t.title       end desc nulls last,
 
-			-- uploaded_at
-			case when p.sort_field = 'uploaded_at'  and p.sort_order = 'asc'  then t.uploaded_at  end asc  nulls last,
-			case when p.sort_field = 'uploaded_at'  and p.sort_order = 'desc' then t.uploaded_at  end desc nulls last,
+			case when p.sort_field = 'uploaded_at' and p.sort_order = 'asc'  then t.uploaded_at end nulls last,
+			case when p.sort_field = 'uploaded_at' and p.sort_order = 'desc' then t.uploaded_at end desc nulls last,
 
-			-- created_at
-			case when p.sort_field = 'created_at'   and p.sort_order = 'asc'  then t.created_at   end asc  nulls last,
-			case when p.sort_field = 'created_at'   and p.sort_order = 'desc' then t.created_at   end desc nulls last,
+			case when p.sort_field = 'created_at'  and p.sort_order = 'asc'  then t.created_at  end nulls last,
+			case when p.sort_field = 'created_at'  and p.sort_order = 'desc' then t.created_at  end desc nulls last,
 
-			-- updated_at
-			case when p.sort_field = 'updated_at'   and p.sort_order = 'asc'  then t.updated_at   end asc  nulls last,
-			case when p.sort_field = 'updated_at'   and p.sort_order = 'desc' then t.updated_at   end desc nulls last,
+			case when p.sort_field = 'updated_at'  and p.sort_order = 'asc'  then t.updated_at  end nulls last,
+			case when p.sort_field = 'updated_at'  and p.sort_order = 'desc' then t.updated_at  end desc nulls last,
 
 			t.created_at desc
 		limit (select limit_val from params)

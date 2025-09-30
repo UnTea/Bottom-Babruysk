@@ -26,7 +26,9 @@ func (s *TracksServer) GetTrack(ctx context.Context, request *connect.Request[pr
 		return nil, connect.NewError(connect.CodeNotFound, err)
 	}
 
-	return connect.NewResponse(&protov1.GetTrackResponse{Track: toProtoTrack(response.Track)}), nil
+	return connect.NewResponse(&protov1.GetTrackResponse{
+		Track: toProtoTrack(response.Track),
+	}), nil
 }
 
 func (s *TracksServer) ListTracks(ctx context.Context, request *connect.Request[protov1.ListTracksRequest]) (*connect.Response[protov1.ListTracksResponse], error) {
