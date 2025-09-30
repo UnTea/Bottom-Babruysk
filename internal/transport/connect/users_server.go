@@ -23,7 +23,7 @@ func (s *UsersServer) CreateUser(ctx context.Context, request *connect.Request[p
 		Email:        Ptr(request.Msg.Email),
 		PasswordHash: Ptr(request.Msg.PasswordHash),
 		DisplayName:  Ptr(request.Msg.DisplayName),
-		Role:         ProtoRolePtrToDomain(Ptr(request.Msg.Role)),
+		Role:         FromProtoRole(request.Msg.Role),
 	})
 	if err != nil {
 		return nil, toConnectErr(err)
@@ -49,7 +49,7 @@ func (s *UsersServer) ListUsers(ctx context.Context, request *connect.Request[pr
 	response, err := s.usersService.ListUsers(ctx, domain.ListUsersRequest{
 		Limit:     Ptr(int(request.Msg.Limit)),
 		Offset:    Ptr(int(request.Msg.Offset)),
-		Role:      ProtoRolePtrToDomain(Ptr(request.Msg.Role)),
+		Role:      FromProtoRole(request.Msg.Role),
 		SortField: Ptr(request.Msg.SortField),
 		SortOrder: Ptr(request.Msg.SortOrder),
 	})
@@ -70,7 +70,7 @@ func (s *UsersServer) UpdateUser(ctx context.Context, request *connect.Request[p
 	err := s.usersService.UpdateUser(ctx, domain.UpdateUserRequest{
 		ID:          StringToUUIDPtr(request.Msg.Id),
 		DisplayName: request.Msg.DisplayName,
-		Role:        ProtoRolePtrToDomain(request.Msg.Role),
+		Role:        FromProtoRole(*request.Msg.Role),
 	})
 	if err != nil {
 		return nil, toConnectErr(err)

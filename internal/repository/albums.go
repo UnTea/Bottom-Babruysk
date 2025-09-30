@@ -1,17 +1,17 @@
-package postgres
+package repository
 
 import (
 	"context"
 
 	"github.com/untea/bottom_babruysk/internal/domain"
-	"github.com/untea/bottom_babruysk/internal/repository"
+	"github.com/untea/bottom_babruysk/internal/repository/postgres"
 )
 
 type AlbumsRepository struct {
-	db *repository.Client // TODO реализовать интерфейс для fetch и прокидывать просто r.db
+	db *postgres.Client // TODO реализовать интерфейс для fetch и прокидывать просто r.db
 }
 
-func NewAlbumsRepository(db *repository.Client) *AlbumsRepository {
+func NewAlbumsRepository(db *postgres.Client) *AlbumsRepository {
 	return &AlbumsRepository{db: db}
 }
 
@@ -29,12 +29,14 @@ func (r *AlbumsRepository) CreateAlbum(ctx context.Context, request domain.Creat
 		request.ReleaseDate,
 	}
 
-	album, err := repository.FetchOne[domain.Album](ctx, r.db.Driver(), createAlbumSQL, arguments...) // TODO реализовать интерфейс для fetch и прокидывать просто r.db
+	album, err := postgres.FetchOne[domain.Album](ctx, r.db.Driver(), createAlbumSQL, arguments...) // TODO реализовать интерфейс для fetch и прокидывать просто r.db
 	if err != nil {
 		return nil, err
 	}
 
-	return &domain.CreateAlbumResponse{ID: album.ID}, nil
+	return &domain.CreateAlbumResponse{
+		ID: album.ID,
+	}, nil
 }
 
 func (r *AlbumsRepository) GetAlbum(ctx context.Context, request domain.GetAlbumRequest) (*domain.GetAlbumResponse, error) {
@@ -48,12 +50,14 @@ func (r *AlbumsRepository) GetAlbum(ctx context.Context, request domain.GetAlbum
 		request.ID,
 	}
 
-	album, err := repository.FetchOne[domain.Album](ctx, r.db.Driver(), getAlbumSQL, arguments...) // TODO реализовать интерфейс для fetch и прокидывать просто r.db
+	album, err := postgres.FetchOne[domain.Album](ctx, r.db.Driver(), getAlbumSQL, arguments...) // TODO реализовать интерфейс для fetch и прокидывать просто r.db
 	if err != nil {
 		return nil, err
 	}
 
-	return &domain.GetAlbumResponse{Album: album}, nil
+	return &domain.GetAlbumResponse{
+		Album: album,
+	}, nil
 }
 
 func (r *AlbumsRepository) ListAlbums(ctx context.Context, request domain.ListAlbumsRequest) (*domain.ListAlbumsResponse, error) {
@@ -93,12 +97,14 @@ func (r *AlbumsRepository) ListAlbums(ctx context.Context, request domain.ListAl
 		request.Offset,
 	}
 
-	albums, err := repository.FetchMany[domain.Album](ctx, r.db.Driver(), getListAlbumsSQL, arguments...) // TODO реализовать интерфейс для fetch и прокидывать просто r.db
+	albums, err := postgres.FetchMany[domain.Album](ctx, r.db.Driver(), getListAlbumsSQL, arguments...) // TODO реализовать интерфейс для fetch и прокидывать просто r.db
 	if err != nil {
 		return nil, err
 	}
 
-	return &domain.ListAlbumsResponse{Albums: albums}, nil
+	return &domain.ListAlbumsResponse{
+		Albums: albums,
+	}, nil
 }
 
 func (r *AlbumsRepository) UpdateAlbum(ctx context.Context, request domain.UpdateAlbumRequest) error {
@@ -119,7 +125,7 @@ func (r *AlbumsRepository) UpdateAlbum(ctx context.Context, request domain.Updat
 		request.ReleaseDate,
 	}
 
-	_, err := repository.FetchOne[domain.Album](ctx, r.db.Driver(), updateAlbumSQL, arguments...) // TODO реализовать интерфейс для fetch и прокидывать просто r.db
+	_, err := postgres.FetchOne[domain.Album](ctx, r.db.Driver(), updateAlbumSQL, arguments...) // TODO реализовать интерфейс для fetch и прокидывать просто r.db
 	if err != nil {
 		return err
 	}
@@ -132,13 +138,13 @@ func (r *AlbumsRepository) DeleteAlbum(ctx context.Context, request domain.Delet
 		delete from albums where id = $1;
 	`
 
-	affected, err := repository.ExecAffected(ctx, r.db.Driver(), deleteAlbumSQL, request.ID) // TODO реализовать интерфейс для fetch и прокидывать просто r.db
+	affected, err := postgres.ExecAffected(ctx, r.db.Driver(), deleteAlbumSQL, request.ID) // TODO реализовать интерфейс для fetch и прокидывать просто r.db
 	if err != nil {
 		return err
 	}
 
 	if affected == 0 {
-		return repository.ErrNotFound
+		return postgres.ErrNotFound
 	}
 
 	return nil

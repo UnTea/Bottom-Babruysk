@@ -1,4 +1,4 @@
-package repository
+package service
 
 import (
 	"context"
@@ -36,4 +36,12 @@ type Playlists interface {
 	ListPlaylists(context.Context, domain.ListPlaylistsRequest) (*domain.ListPlaylistsResponse, error)
 	UpdatePlaylist(context.Context, domain.UpdatePlaylistRequest) error
 	DeletePlaylist(context.Context, domain.DeletePlaylistRequest) error
+}
+
+type Artists interface {
+	CreateArtist(context.Context, domain.CreateArtistRequest) (*domain.CreateArtistResponse, error)
+	GetArtist(context.Context, domain.GetArtistRequest) (*domain.GetArtistResponse, error)
+	ListArtists(context.Context, domain.ListArtistsRequest) (*domain.ListArtistsResponse, error)
+	UpdateArtist(context.Context, domain.UpdateArtistRequest) error
+	DeleteArtist(context.Context, domain.DeleteArtistRequest) error
 }

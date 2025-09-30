@@ -14,13 +14,15 @@ type Services struct {
 	AlbumServices    *service.AlbumsService
 	TacksServices    *service.TracksService
 	PlaylistsService *service.PlaylistsService
+	ArtistsService   *service.ArtistsService
 }
 
 type Repositories struct {
-	UsersRepository     repository.Users
-	AlbumsRepository    repository.Albums
-	TracksRepository    repository.Tracks
-	PlaylistsRepository repository.Playlists
+	UsersRepository     service.Users
+	AlbumsRepository    service.Albums
+	TracksRepository    service.Tracks
+	PlaylistsRepository service.Playlists
+	ArtistsRepository   service.Artists
 }
 
 type Container struct {
@@ -30,29 +32,33 @@ type Container struct {
 	Services      Services
 }
 
-func BuildContainer(configuration *configuration.Configuration, logger *zap.Logger, dbClient *repository.Client) (*Container, error) {
-	usersRepository := postgres.NewUsersRepository(dbClient)
-	albumsRepository := postgres.NewAlbumsRepository(dbClient)
-	tracksRepository := postgres.NewTracksRepository(dbClient)
-	playlistsRepository := postgres.NewPlaylistsRepository(dbClient)
+func BuildContainer(configuration *configuration.Configuration, logger *zap.Logger, dbClient *postgres.Client) (*Container, error) {
+	usersRepository := repository.NewUsersRepository(dbClient)
+	albumsRepository := repository.NewAlbumsRepository(dbClient)
+	tracksRepository := repository.NewTracksRepository(dbClient)
+	playlistsRepository := repository.NewPlaylistsRepository(dbClient)
+	artistsRepository := repository.NewArtistsRepository(dbClient)
 
 	repositories := Repositories{
 		UsersRepository:     usersRepository,
 		AlbumsRepository:    albumsRepository,
 		TracksRepository:    tracksRepository,
 		PlaylistsRepository: playlistsRepository,
+		ArtistsRepository:   artistsRepository,
 	}
 
 	usersServices := service.NewUsersService(usersRepository)
 	albumsServices := service.NewAlbumsService(albumsRepository)
 	tracksServices := service.NewTracksService(tracksRepository)
 	playlistsServices := service.NewPlaylistsService(playlistsRepository)
+	artistsServices := service.NewArtistsService(artistsRepository)
 
 	services := Services{
 		UsersServices:    usersServices,
 		AlbumServices:    albumsServices,
 		TacksServices:    tracksServices,
 		PlaylistsService: playlistsServices,
+		ArtistsService:   artistsServices,
 	}
 
 	container := &Container{

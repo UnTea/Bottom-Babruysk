@@ -14,7 +14,7 @@ func toProtoPlaylist(p *domain.Playlist) *protov1.Playlist {
 		OwnerId:     UUIDPtrToString(p.OwnerID),
 		Title:       ValueOrZero(p.Title),
 		Description: ValueOrZero(p.Description),
-		Visibility:  DomainVisibilityToProto(p.Visibility),
+		Visibility:  ToProtoVisibility(p.Visibility),
 		CreatedAt:   TimeToTimestamppb(p.CreatedAt),
 		UpdatedAt:   TimeToTimestamppb(p.UpdatedAt),
 	}

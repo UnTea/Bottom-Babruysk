@@ -26,9 +26,7 @@ func (s *TracksServer) GetTrack(ctx context.Context, request *connect.Request[pr
 		return nil, connect.NewError(connect.CodeNotFound, err)
 	}
 
-	return connect.NewResponse(&protov1.GetTrackResponse{
-		Track: toProtoTrack(response.Track),
-	}), nil
+	return connect.NewResponse(&protov1.GetTrackResponse{Track: toProtoTrack(response.Track)}), nil
 }
 
 func (s *TracksServer) ListTracks(ctx context.Context, request *connect.Request[protov1.ListTracksRequest]) (*connect.Response[protov1.ListTracksResponse], error) {
@@ -36,7 +34,7 @@ func (s *TracksServer) ListTracks(ctx context.Context, request *connect.Request[
 		Limit:      Ptr(int(request.Msg.Limit)),
 		Offset:     Ptr(int(request.Msg.Offset)),
 		UploaderID: StringToUUIDPtr(request.Msg.UploaderId),
-		Visibility: ProtoVisibilityPtrToDomain(Ptr(request.Msg.Visibility)),
+		Visibility: FromProtoVisibility(request.Msg.Visibility),
 		SortField:  Ptr(request.Msg.SortField),
 		SortOrder:  Ptr(request.Msg.SortOrder),
 	})
@@ -59,7 +57,7 @@ func (s *TracksServer) UpdateTrack(ctx context.Context, request *connect.Request
 		Title:       request.Msg.Title,
 		Subtitle:    request.Msg.Subtitle,
 		Description: request.Msg.Description,
-		Visibility:  ProtoVisibilityPtrToDomain(request.Msg.Visibility),
+		Visibility:  FromProtoVisibility(*request.Msg.Visibility),
 	})
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInvalidArgument, err)

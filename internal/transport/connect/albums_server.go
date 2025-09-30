@@ -29,9 +29,7 @@ func (s *AlbumsServer) CreateAlbum(ctx context.Context, request *connect.Request
 		return nil, toConnectErr(err)
 	}
 
-	return connect.NewResponse(&protov1.CreateAlbumResponse{
-		Id: UUIDPtrToString(response.ID),
-	}), nil
+	return connect.NewResponse(&protov1.CreateAlbumResponse{Id: UUIDPtrToString(response.ID)}), nil
 }
 
 func (s *AlbumsServer) GetAlbum(ctx context.Context, request *connect.Request[protov1.GetAlbumRequest]) (*connect.Response[protov1.GetAlbumResponse], error) {
@@ -42,9 +40,7 @@ func (s *AlbumsServer) GetAlbum(ctx context.Context, request *connect.Request[pr
 		return nil, toConnectErr(err)
 	}
 
-	return connect.NewResponse(&protov1.GetAlbumResponse{
-		Album: toProtoAlbum(response.Album),
-	}), nil
+	return connect.NewResponse(&protov1.GetAlbumResponse{Album: toProtoAlbum(response.Album)}), nil
 }
 
 func (s *AlbumsServer) ListAlbums(ctx context.Context, request *connect.Request[protov1.ListAlbumsRequest]) (*connect.Response[protov1.ListAlbumsResponse], error) {

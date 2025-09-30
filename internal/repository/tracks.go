@@ -1,24 +1,36 @@
-package postgres
+package repository
 
 import (
 	"context"
 
 	"github.com/untea/bottom_babruysk/internal/domain"
-	"github.com/untea/bottom_babruysk/internal/repository"
+	"github.com/untea/bottom_babruysk/internal/repository/postgres"
 )
 
 type TracksRepository struct {
-	db *repository.Client // TODO реализовать интерфейс для fetch и прокидывать просто r.db
+	db *postgres.Client // TODO реализовать интерфейс для fetch и прокидывать просто r.db
 }
 
-func NewTracksRepository(db *repository.Client) *TracksRepository {
+func NewTracksRepository(db *postgres.Client) *TracksRepository {
 	return &TracksRepository{db: db}
 }
 
 func (r *TracksRepository) CreateTrack(ctx context.Context, request domain.CreateTrackRequest) (*domain.CreateTrackResponse, error) {
 	const createTracksQL = `
-		insert into tracks (uploader_id, title, subtitle, description, duration, visibility, uploaded_at)
-		values ($1, $2, $3, $4, $5, coalesce($6::visibility, 'private'::visibility), $7)
+		insert into tracks (uploader_id, 
+		                    title, 
+		                    subtitle, 
+		                    description, 
+		                    duration, 
+							visibility, 
+		                    uploaded_at)
+		values ($1, 
+		        $2, 
+		        $3, 
+		        $4, 
+		        $5, 
+		        coalesce($6::visibility, 'private'::visibility), 
+		        $7)
 		returning id;
 	`
 
@@ -32,7 +44,7 @@ func (r *TracksRepository) CreateTrack(ctx context.Context, request domain.Creat
 		request.UploadedAt,
 	}
 
-	track, err := repository.FetchOne[domain.Track](ctx, r.db.Driver(), createTracksQL, arguments...) // TODO реализовать интерфейс для fetch и прокидывать просто r.db
+	track, err := postgres.FetchOne[domain.Track](ctx, r.db.Driver(), createTracksQL, arguments...) // TODO реализовать интерфейс для fetch и прокидывать просто r.db
 	if err != nil {
 		return nil, err
 	}
@@ -43,9 +55,16 @@ func (r *TracksRepository) CreateTrack(ctx context.Context, request domain.Creat
 func (r *TracksRepository) GetTrack(ctx context.Context, request domain.GetTrackRequest) (*domain.GetTrackResponse, error) {
 	const getTracksQL = `
 		select 
-			id, uploader_id, title, subtitle, description, duration, 
-			visibility::text as visibility, 
-			created_at, updated_at, uploaded_at
+			id, 
+			uploader_id, 
+			title, 
+			subtitle, 
+			description, 
+			duration, 
+			visibility, 
+			created_at, 
+			updated_at, 
+			uploaded_at
 		from tracks
 		where id = $1;
 	`
@@ -54,7 +73,7 @@ func (r *TracksRepository) GetTrack(ctx context.Context, request domain.GetTrack
 		request.ID,
 	}
 
-	track, err := repository.FetchOne[domain.Track](ctx, r.db.Driver(), getTracksQL, arguments...) // TODO реализовать интерфейс для fetch и прокидывать просто r.db
+	track, err := postgres.FetchOne[domain.Track](ctx, r.db.Driver(), getTracksQL, arguments...) // TODO реализовать интерфейс для fetch и прокидывать просто r.db
 	if err != nil {
 		return nil, err
 	}
@@ -74,10 +93,17 @@ func (r *TracksRepository) ListTracks(ctx context.Context, request domain.ListTr
 				greatest(coalesce($6, 0), 0)                  as offset_val
 		)
 		select
-			t.id, t.uploader_id, t.title, t.subtitle, t.description, t.duration,
-			t.visibility::text as visibility,
-			t.created_at, t.updated_at, t.uploaded_at
-		from tracks t, params p
+			t.id, 
+			t.uploader_id, 
+			t.title, 
+			t.subtitle, 
+			t.description, 
+			t.duration,
+			t.visibility,
+			t.created_at, 
+			t.updated_at, 
+			t.uploaded_at
+		from tracks as t, params as p
 		where
 			(p.uploader_filter is null or t.uploader_id = p.uploader_filter)
 			and (p.visibility_filter is null or t.visibility = p.visibility_filter)
@@ -100,15 +126,15 @@ func (r *TracksRepository) ListTracks(ctx context.Context, request domain.ListTr
 	`
 
 	arguments := []any{
-		request.Limit,
-		request.Offset,
 		request.UploaderID,
 		request.Visibility,
 		request.SortField,
 		request.SortOrder,
+		request.Limit,
+		request.Offset,
 	}
 
-	tracks, err := repository.FetchMany[domain.Track](ctx, r.db.Driver(), getListTracksSQL, arguments...) // TODO реализовать интерфейс для fetch и прокидывать просто r.db
+	tracks, err := postgres.FetchMany[domain.Track](ctx, r.db.Driver(), getListTracksSQL, arguments...) // TODO реализовать интерфейс для fetch и прокидывать просто r.db
 	if err != nil {
 		return nil, err
 	}
@@ -136,7 +162,7 @@ func (r *TracksRepository) UpdateTrack(ctx context.Context, request domain.Updat
 		request.Visibility,
 	}
 
-	_, err := repository.FetchOne[domain.Track](ctx, r.db.Driver(), updateTracksQL, arguments...) // TODO реализовать интерфейс для fetch и прокидывать просто r.db
+	_, err := postgres.FetchOne[domain.Track](ctx, r.db.Driver(), updateTracksQL, arguments...) // TODO реализовать интерфейс для fetch и прокидывать просто r.db
 	if err != nil {
 		return err
 	}
@@ -149,13 +175,17 @@ func (r *TracksRepository) DeleteTrack(ctx context.Context, request domain.Delet
 		delete from tracks where id = $1;;
 	`
 
-	affected, err := repository.ExecAffected(ctx, r.db.Driver(), deleteTracksQL, request.ID) // TODO реализовать интерфейс для fetch и прокидывать просто r.db
+	arguments := []any{
+		request.ID,
+	}
+
+	affected, err := postgres.ExecAffected(ctx, r.db.Driver(), deleteTracksQL, arguments...) // TODO реализовать интерфейс для fetch и прокидывать просто r.db
 	if err != nil {
 		return err
 	}
 
 	if affected == 0 {
-		return repository.ErrNotFound
+		return postgres.ErrNotFound
 	}
 
 	return nil

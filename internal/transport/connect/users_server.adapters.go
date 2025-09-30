@@ -16,26 +16,37 @@ func toProtoUser(user *domain.User) *protov1.User {
 		Email:        ValueOrZero(user.Email),
 		PasswordHash: ValueOrZero(user.PasswordHash),
 		DisplayName:  ValueOrZero(user.DisplayName),
-		Role:         DomainRoleToProto(user.Role),
+		Role:         ToProtoRole(user.Role),
 		CreatedAt:    TimeToTimestamppb(user.CreatedAt),
 		UpdatedAt:    TimeToTimestamppb(user.UpdatedAt),
 	}
 }
 
-func ProtoRolePtrToDomain(p *protov1.Role) *domain.Role {
-	if p == nil {
-		return nil
-	}
-
-	v := domain.Role(*p)
-
-	return &v
-}
-
-func DomainRoleToProto(role *domain.Role) protov1.Role {
+func ToProtoRole(role *domain.Role) protov1.Role {
 	if role == nil {
 		return protov1.Role_ROLE_UNSPECIFIED
 	}
 
-	return protov1.Role(*role)
+	switch *role {
+	case domain.RoleUser:
+		return protov1.Role_ROLE_USER
+	case domain.RoleAdmin:
+		return protov1.Role_ROLE_ADMIN
+	default:
+		return protov1.Role_ROLE_UNSPECIFIED
+	}
+}
+
+func FromProtoRole(role protov1.Role) *domain.Role {
+	switch role {
+	case protov1.Role_ROLE_USER:
+		x := domain.RoleUser
+		return &x
+	case protov1.Role_ROLE_ADMIN:
+		x := domain.RoleAdmin
+		return &x
+	default:
+		x := domain.RoleUser
+		return &x
+	}
 }

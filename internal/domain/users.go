@@ -6,12 +6,12 @@ import (
 	"github.com/google/uuid"
 )
 
-type Role int32
+type Role string
 
 const (
-	RoleUnspecified = "unspecified"
-	RoleUser        = "user"
-	RoleAdmin       = "admin"
+	RoleUnspecified Role = "unspecified"
+	RoleUser        Role = "user"
+	RoleAdmin       Role = "admin"
 )
 
 type User struct {

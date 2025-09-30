@@ -4,14 +4,13 @@ import (
 	"context"
 
 	"github.com/untea/bottom_babruysk/internal/domain"
-	"github.com/untea/bottom_babruysk/internal/repository"
 )
 
 type UsersService struct {
-	repository repository.Users
+	repository Users
 }
 
-func NewUsersService(repository repository.Users) *UsersService {
+func NewUsersService(repository Users) *UsersService {
 	return &UsersService{repository: repository}
 }
 

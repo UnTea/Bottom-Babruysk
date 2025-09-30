@@ -1,0 +1,67 @@
+syntax = "proto3";
+
+package proto.v1;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/untea/bottom_babruysk/internal/transport/gen/proto/v1;protov1";
+
+service ArtistsService {
+  rpc CreateArtist(CreateArtistRequest) returns (CreateArtistResponse);
+  rpc GetArtist(GetArtistRequest) returns (GetArtistResponse);
+  rpc ListArtists(ListArtistsRequest) returns (ListArtistsResponse);
+  rpc UpdateArtist(UpdateArtistRequest) returns (UpdateArtistResponse);
+  rpc DeleteArtist(DeleteArtistRequest) returns (DeleteArtistResponse);
+}
+
+message Artist {
+  string id = 1;
+  string name = 2;
+  string bio = 3;
+  google.protobuf.Timestamp created_at = 4;
+  google.protobuf.Timestamp updated_at = 5;
+}
+
+message CreateArtistRequest {
+  string name = 1;
+  string bio = 2;
+}
+
+message CreateArtistResponse {
+  string id = 1;
+}
+
+message GetArtistRequest {
+  string id = 1;
+}
+
+message GetArtistResponse {
+  Artist artist = 1;
+}
+
+message ListArtistsRequest {
+  string name = 1;
+  string bio = 2;
+  uint32 limit = 3;
+  uint32 offset = 4;
+  string sort_field = 5;
+  string sort_order = 6;
+}
+
+message ListArtistsResponse {
+  repeated Artist artists = 1;
+}
+
+message UpdateArtistRequest {
+  string id = 1;
+  optional string name = 2;
+  optional string bio = 3;
+}
+
+message UpdateArtistResponse {}
+
+message DeleteArtistRequest {
+  string id = 1;
+}
+
+message DeleteArtistResponse {}

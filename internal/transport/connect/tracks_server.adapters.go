@@ -18,27 +18,43 @@ func toProtoTrack(track *domain.Track) *protov1.Track {
 		Subtitle:    ValueOrZero(track.Subtitle),
 		Description: ValueOrZero(track.Description),
 		Duration:    DurationToDurationpb(track.Duration),
-		Visibility:  DomainVisibilityToProto(track.Visibility),
+		Visibility:  ToProtoVisibility(track.Visibility),
 		CreatedAt:   TimeToTimestamppb(track.CreatedAt),
 		UpdatedAt:   TimeToTimestamppb(track.UpdatedAt),
 		UploadedAt:  TimeToTimestamppb(track.UploadedAt),
 	}
 }
 
-func ProtoVisibilityPtrToDomain(visibility *protov1.Visibility) *domain.Visibility {
-	if visibility == nil {
-		return nil
-	}
-
-	v := domain.Visibility(*visibility)
-
-	return &v
-}
-
-func DomainVisibilityToProto(visibility *domain.Visibility) protov1.Visibility {
+func ToProtoVisibility(visibility *domain.Visibility) protov1.Visibility {
 	if visibility == nil {
 		return protov1.Visibility_VISIBILITY_UNSPECIFIED
 	}
 
-	return protov1.Visibility(*visibility)
+	switch *visibility {
+	case domain.VisibilityPrivate:
+		return protov1.Visibility_VISIBILITY_PRIVATE
+	case domain.VisibilityUnlisted:
+		return protov1.Visibility_VISIBILITY_UNLISTED
+	case domain.VisibilityPublic:
+		return protov1.Visibility_VISIBILITY_PUBLIC
+	default:
+		return protov1.Visibility_VISIBILITY_UNSPECIFIED
+	}
+}
+
+func FromProtoVisibility(visibility protov1.Visibility) *domain.Visibility {
+	switch visibility {
+	case protov1.Visibility_VISIBILITY_PRIVATE:
+		x := domain.VisibilityPrivate
+		return &x
+	case protov1.Visibility_VISIBILITY_UNLISTED:
+		x := domain.VisibilityUnlisted
+		return &x
+	case protov1.Visibility_VISIBILITY_PUBLIC:
+		x := domain.VisibilityPublic
+		return &x
+	default:
+		x := domain.VisibilityUnlisted
+		return &x
+	}
 }

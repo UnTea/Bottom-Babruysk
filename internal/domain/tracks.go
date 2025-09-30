@@ -6,26 +6,26 @@ import (
 	"github.com/google/uuid"
 )
 
-type Visibility int32
+type Visibility string
 
 const (
-	VisibilityUnspecified = "unspecified"
-	VisibilityPrivate     = "private"
-	VisibilityUnlisted    = "unlisted"
-	VisibilityPublic      = "public"
+	VisibilityUnspecified Visibility = "unspecified"
+	VisibilityPrivate     Visibility = "private"
+	VisibilityUnlisted    Visibility = "unlisted"
+	VisibilityPublic      Visibility = "public"
 )
 
 type Track struct {
-	ID          *uuid.UUID     `db:"id"`
-	UploaderID  *uuid.UUID     `db:"uploader_id"`
-	Title       *string        `db:"title"`
-	Subtitle    *string        `db:"subtitle"`
-	Description *string        `db:"description"`
-	Duration    *time.Duration `db:"duration"`
-	Visibility  *Visibility    `db:"visibility"`
-	CreatedAt   *time.Time     `db:"created_at"`
-	UpdatedAt   *time.Time     `db:"updated_at"`
-	UploadedAt  *time.Time     `db:"uploaded_at"`
+	ID          *uuid.UUID     `db:"id"          json:"id,omitempty"`
+	UploaderID  *uuid.UUID     `db:"uploader_id" json:"uploaderID,omitempty"`
+	Title       *string        `db:"title"       json:"title,omitempty"`
+	Subtitle    *string        `db:"subtitle"    json:"subtitle,omitempty"`
+	Description *string        `db:"description" json:"description,omitempty"`
+	Duration    *time.Duration `db:"duration"    json:"duration,omitempty"`
+	Visibility  *Visibility    `db:"visibility"  json:"visibility,omitempty"`
+	CreatedAt   *time.Time     `db:"created_at"  json:"createdAt,omitempty"`
+	UpdatedAt   *time.Time     `db:"updated_at"  json:"updatedAt,omitempty"`
+	UploadedAt  *time.Time     `db:"uploaded_at" json:"uploadedAt,omitempty"`
 }
 
 type (

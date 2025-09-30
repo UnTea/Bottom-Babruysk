@@ -40,3 +40,13 @@ func (h *Handler) MountPlaylists(r chi.Router) {
 		r.Delete("/{id}", Handle(h, Lift(h.Services.PlaylistsService.DeletePlaylist)))
 	})
 }
+
+func (h *Handler) MountArtists(r chi.Router) {
+	r.Route("/artists", func(r chi.Router) {
+		r.Post("/", Handle(h, h.Services.ArtistsService.CreateArtist))
+		r.Get("/", Handle(h, h.Services.ArtistsService.ListArtists))
+		r.Get("/{id}", Handle(h, h.Services.ArtistsService.GetArtist))
+		r.Patch("/{id}", Handle(h, Lift(h.Services.ArtistsService.UpdateArtist)))
+		r.Delete("/{id}", Handle(h, Lift(h.Services.ArtistsService.DeleteArtist)))
+	})
+}

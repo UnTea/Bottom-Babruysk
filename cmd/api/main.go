@@ -14,7 +14,7 @@ import (
 	"github.com/untea/bottom_babruysk/internal/application"
 	"github.com/untea/bottom_babruysk/internal/configuration"
 	"github.com/untea/bottom_babruysk/internal/logger"
-	"github.com/untea/bottom_babruysk/internal/repository"
+	"github.com/untea/bottom_babruysk/internal/repository/postgres"
 	"github.com/untea/bottom_babruysk/internal/web/handlers"
 	"github.com/untea/bottom_babruysk/internal/web/router"
 	"github.com/untea/bottom_babruysk/internal/web/server"
@@ -31,12 +31,12 @@ func main() {
 		l.Fatal("failed to load cfg", zap.Error(err))
 	}
 
-	dbCfg := repository.Configuration{
+	dbCfg := postgres.Configuration{
 		ConnectionString: cfg.DatabaseConnectionURL,
 		Timeout:          30 * time.Second,
 	}
 
-	dbClient, err := repository.New(context.Background(), dbCfg)
+	dbClient, err := postgres.New(context.Background(), dbCfg)
 	if err != nil {
 		l.Fatal("failed to initialize dbClient", zap.Error(err))
 	}

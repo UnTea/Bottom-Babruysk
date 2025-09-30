@@ -7,13 +7,13 @@ import (
 )
 
 type Playlist struct {
-	ID          *uuid.UUID  `db:"id"`
-	OwnerID     *uuid.UUID  `db:"owner_id"`
-	Title       *string     `db:"title"`
-	Description *string     `db:"description"`
-	Visibility  *Visibility `db:"visibility"`
-	CreatedAt   *time.Time  `db:"created_at"`
-	UpdatedAt   *time.Time  `db:"updated_at"`
+	ID          *uuid.UUID  `db:"id"          json:"id,omitempty"`
+	OwnerID     *uuid.UUID  `db:"owner_id"    json:"ownerID,omitempty"`
+	Title       *string     `db:"title"       json:"title,omitempty"`
+	Description *string     `db:"description" json:"description,omitempty"`
+	Visibility  *Visibility `db:"visibility"  json:"visibility,omitempty"`
+	CreatedAt   *time.Time  `db:"created_at"  json:"createdAt,omitempty"`
+	UpdatedAt   *time.Time  `db:"updated_at"  json:"updatedAt,omitempty"`
 }
 
 type (

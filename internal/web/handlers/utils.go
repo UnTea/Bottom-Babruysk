@@ -18,14 +18,14 @@ import (
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/google/uuid"
 
-	"github.com/untea/bottom_babruysk/internal/repository"
+	"github.com/untea/bottom_babruysk/internal/repository/postgres"
 )
 
 type Empty struct{}
 
 func (h *Handler) toHTTPStatus(err error) int {
 	switch {
-	case errors.Is(err, repository.ErrNotFound):
+	case errors.Is(err, postgres.ErrNotFound):
 		return http.StatusNotFound
 	case isValidationErr(err):
 		return http.StatusBadRequest

@@ -23,15 +23,13 @@ func (s *PlaylistsServer) CreatePlaylist(ctx context.Context, request *connect.R
 		OwnerID:     StringToUUIDPtr(request.Msg.OwnerId),
 		Title:       Ptr(request.Msg.Title),
 		Description: Ptr(request.Msg.Description),
-		Visibility:  ProtoVisibilityPtrToDomain(Ptr(request.Msg.GetVisibility())),
+		Visibility:  FromProtoVisibility(request.Msg.Visibility),
 	})
 	if err != nil {
 		return nil, toConnectErr(err)
 	}
 
-	return connect.NewResponse(&protov1.CreatePlaylistResponse{
-		Id: response.ID.String(),
-	}), nil
+	return connect.NewResponse(&protov1.CreatePlaylistResponse{Id: response.ID.String()}), nil
 }
 
 func (s *PlaylistsServer) GetPlaylist(ctx context.Context, request *connect.Request[protov1.GetPlaylistRequest]) (*connect.Response[protov1.GetPlaylistResponse], error) {
@@ -42,9 +40,7 @@ func (s *PlaylistsServer) GetPlaylist(ctx context.Context, request *connect.Requ
 		return nil, toConnectErr(err)
 	}
 
-	return connect.NewResponse(&protov1.GetPlaylistResponse{
-		Playlist: toProtoPlaylist(out.Playlist),
-	}), nil
+	return connect.NewResponse(&protov1.GetPlaylistResponse{Playlist: toProtoPlaylist(out.Playlist)}), nil
 }
 
 func (s *PlaylistsServer) ListPlaylists(ctx context.Context, request *connect.Request[protov1.ListPlaylistsRequest]) (*connect.Response[protov1.ListPlaylistsResponse], error) {
@@ -52,7 +48,7 @@ func (s *PlaylistsServer) ListPlaylists(ctx context.Context, request *connect.Re
 		Limit:      Ptr(int(request.Msg.Limit)),
 		Offset:     Ptr(int(request.Msg.Offset)),
 		OwnerID:    StringToUUIDPtr(request.Msg.OwnerId),
-		Visibility: ProtoVisibilityPtrToDomain(Ptr(request.Msg.Visibility)),
+		Visibility: FromProtoVisibility(request.Msg.Visibility),
 		SortField:  Ptr(request.Msg.SortField),
 		SortOrder:  Ptr(request.Msg.SortOrder),
 	})
@@ -74,7 +70,7 @@ func (s *PlaylistsServer) UpdatePlaylist(ctx context.Context, request *connect.R
 		ID:          StringToUUIDPtr(request.Msg.Id),
 		Title:       request.Msg.Title,
 		Description: request.Msg.Description,
-		Visibility:  ProtoVisibilityPtrToDomain(request.Msg.Visibility),
+		Visibility:  FromProtoVisibility(*request.Msg.Visibility),
 	})
 	if err != nil {
 		return nil, toConnectErr(err)

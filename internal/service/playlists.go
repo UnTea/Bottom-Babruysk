@@ -4,14 +4,13 @@ import (
 	"context"
 
 	"github.com/untea/bottom_babruysk/internal/domain"
-	"github.com/untea/bottom_babruysk/internal/repository"
 )
 
 type PlaylistsService struct {
-	repository repository.Playlists
+	repository Playlists
 }
 
-func NewPlaylistsService(repository repository.Playlists) *PlaylistsService {
+func NewPlaylistsService(repository Playlists) *PlaylistsService {
 	return &PlaylistsService{repository: repository}
 }
 

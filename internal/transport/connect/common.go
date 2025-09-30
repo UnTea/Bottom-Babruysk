@@ -7,7 +7,7 @@ import (
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/google/uuid"
 
-	"github.com/untea/bottom_babruysk/internal/repository"
+	"github.com/untea/bottom_babruysk/internal/repository/postgres"
 )
 
 // Ptr если нужно получить указатель на значение.
@@ -110,7 +110,7 @@ func toConnectErr(err error) error {
 		return nil
 	}
 
-	if errors.Is(err, repository.ErrNotFound) {
+	if errors.Is(err, postgres.ErrNotFound) {
 		return connect.NewError(connect.CodeNotFound, err)
 	}
 

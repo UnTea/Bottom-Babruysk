@@ -4,14 +4,13 @@ import (
 	"context"
 
 	"github.com/untea/bottom_babruysk/internal/domain"
-	"github.com/untea/bottom_babruysk/internal/repository"
 )
 
 type TracksService struct {
-	repository repository.Tracks
+	repository Tracks
 }
 
-func NewTracksService(repository repository.Tracks) *TracksService {
+func NewTracksService(repository Tracks) *TracksService {
 	return &TracksService{repository: repository}
 }
 

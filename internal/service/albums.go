@@ -4,14 +4,13 @@ import (
 	"context"
 
 	"github.com/untea/bottom_babruysk/internal/domain"
-	"github.com/untea/bottom_babruysk/internal/repository"
 )
 
 type AlbumsService struct {
-	repository repository.Albums
+	repository Albums
 }
 
-func NewAlbumsService(repository repository.Albums) *AlbumsService {
+func NewAlbumsService(repository Albums) *AlbumsService {
 	return &AlbumsService{repository: repository}
 }
 
