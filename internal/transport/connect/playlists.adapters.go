@@ -3,6 +3,7 @@ package connect
 import (
 	"github.com/untea/bottom_babruysk/internal/domain"
 	protov1 "github.com/untea/bottom_babruysk/internal/transport/gen/proto/v1"
+	"github.com/untea/bottom_babruysk/utils"
 )
 
 func toProtoPlaylist(p *domain.Playlist) *protov1.Playlist {
@@ -10,12 +11,12 @@ func toProtoPlaylist(p *domain.Playlist) *protov1.Playlist {
 		return nil
 	}
 	return &protov1.Playlist{
-		Id:          UUIDPtrToString(p.ID),
-		OwnerId:     UUIDPtrToString(p.OwnerID),
-		Title:       ValueOrZero(p.Title),
-		Description: ValueOrZero(p.Description),
+		Id:          utils.UUIDPtrToString(p.ID),
+		OwnerId:     utils.UUIDPtrToString(p.OwnerID),
+		Title:       utils.ValueOrZero(p.Title),
+		Description: utils.ValueOrZero(p.Description),
 		Visibility:  ToProtoVisibility(p.Visibility),
-		CreatedAt:   TimeToTimestamppb(p.CreatedAt),
-		UpdatedAt:   TimeToTimestamppb(p.UpdatedAt),
+		CreatedAt:   utils.TimeToTimestamppb(p.CreatedAt),
+		UpdatedAt:   utils.TimeToTimestamppb(p.UpdatedAt),
 	}
 }

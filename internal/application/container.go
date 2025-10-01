@@ -10,19 +10,21 @@ import (
 )
 
 type Services struct {
-	UsersServices    *service.UsersService
-	AlbumServices    *service.AlbumsService
-	TacksServices    *service.TracksService
-	PlaylistsService *service.PlaylistsService
-	ArtistsService   *service.ArtistsService
+	UsersServices     *service.UsersService
+	AlbumServices     *service.AlbumsService
+	TacksServices     *service.TracksService
+	PlaylistsService  *service.PlaylistsService
+	ArtistsService    *service.ArtistsService
+	TrackFilesService *service.TrackFilesService
 }
 
 type Repositories struct {
-	UsersRepository     service.Users
-	AlbumsRepository    service.Albums
-	TracksRepository    service.Tracks
-	PlaylistsRepository service.Playlists
-	ArtistsRepository   service.Artists
+	UsersRepository      service.Users
+	AlbumsRepository     service.Albums
+	TracksRepository     service.Tracks
+	PlaylistsRepository  service.Playlists
+	ArtistsRepository    service.Artists
+	TrackFilesRepository service.TrackFiles
 }
 
 type Container struct {
@@ -38,13 +40,15 @@ func BuildContainer(configuration *configuration.Configuration, logger *zap.Logg
 	tracksRepository := repository.NewTracksRepository(dbClient)
 	playlistsRepository := repository.NewPlaylistsRepository(dbClient)
 	artistsRepository := repository.NewArtistsRepository(dbClient)
+	trackFilesRepository := repository.NewTrackFilesRepository(dbClient)
 
 	repositories := Repositories{
-		UsersRepository:     usersRepository,
-		AlbumsRepository:    albumsRepository,
-		TracksRepository:    tracksRepository,
-		PlaylistsRepository: playlistsRepository,
-		ArtistsRepository:   artistsRepository,
+		UsersRepository:      usersRepository,
+		AlbumsRepository:     albumsRepository,
+		TracksRepository:     tracksRepository,
+		PlaylistsRepository:  playlistsRepository,
+		ArtistsRepository:    artistsRepository,
+		TrackFilesRepository: trackFilesRepository,
 	}
 
 	usersServices := service.NewUsersService(usersRepository)
@@ -52,13 +56,15 @@ func BuildContainer(configuration *configuration.Configuration, logger *zap.Logg
 	tracksServices := service.NewTracksService(tracksRepository)
 	playlistsServices := service.NewPlaylistsService(playlistsRepository)
 	artistsServices := service.NewArtistsService(artistsRepository)
+	trackFilesService := service.NewTrackFilesService(trackFilesRepository)
 
 	services := Services{
-		UsersServices:    usersServices,
-		AlbumServices:    albumsServices,
-		TacksServices:    tracksServices,
-		PlaylistsService: playlistsServices,
-		ArtistsService:   artistsServices,
+		UsersServices:     usersServices,
+		AlbumServices:     albumsServices,
+		TacksServices:     tracksServices,
+		PlaylistsService:  playlistsServices,
+		ArtistsService:    artistsServices,
+		TrackFilesService: trackFilesService,
 	}
 
 	container := &Container{

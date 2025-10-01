@@ -8,6 +8,7 @@ import (
 	"github.com/untea/bottom_babruysk/internal/domain"
 	"github.com/untea/bottom_babruysk/internal/service"
 	protov1 "github.com/untea/bottom_babruysk/internal/transport/gen/proto/v1"
+	"github.com/untea/bottom_babruysk/utils"
 )
 
 type ArtistsServer struct {
@@ -18,8 +19,8 @@ func NewArtistsServer(svc *service.ArtistsService) *ArtistsServer { return &Arti
 
 func (s *ArtistsServer) CreateArtist(ctx context.Context, req *connect.Request[protov1.CreateArtistRequest]) (*connect.Response[protov1.CreateArtistResponse], error) {
 	out, err := s.svc.CreateArtist(ctx, domain.CreateArtistRequest{
-		Name: Ptr(req.Msg.Name),
-		Bio:  Ptr(req.Msg.Bio),
+		Name: utils.Ptr(req.Msg.Name),
+		Bio:  utils.Ptr(req.Msg.Bio),
 	})
 	if err != nil {
 		return nil, toConnectErr(err)
@@ -30,7 +31,7 @@ func (s *ArtistsServer) CreateArtist(ctx context.Context, req *connect.Request[p
 
 func (s *ArtistsServer) GetArtist(ctx context.Context, request *connect.Request[protov1.GetArtistRequest]) (*connect.Response[protov1.GetArtistResponse], error) {
 	out, err := s.svc.GetArtist(ctx, domain.GetArtistRequest{
-		ID: StringToUUIDPtr(request.Msg.Id),
+		ID: utils.StringToUUIDPtr(request.Msg.Id),
 	})
 	if err != nil {
 		return nil, toConnectErr(err)
@@ -41,12 +42,12 @@ func (s *ArtistsServer) GetArtist(ctx context.Context, request *connect.Request[
 
 func (s *ArtistsServer) ListArtists(ctx context.Context, request *connect.Request[protov1.ListArtistsRequest]) (*connect.Response[protov1.ListArtistsResponse], error) {
 	response, err := s.svc.ListArtists(ctx, domain.ListArtistsRequest{
-		Name:      Ptr(request.Msg.Name),
-		Bio:       Ptr(request.Msg.Bio),
-		Limit:     Ptr(int(request.Msg.Limit)),
-		Offset:    Ptr(int(request.Msg.Offset)),
-		SortField: Ptr(request.Msg.SortField),
-		SortOrder: Ptr(request.Msg.SortOrder),
+		Name:      utils.Ptr(request.Msg.Name),
+		Bio:       utils.Ptr(request.Msg.Bio),
+		Limit:     utils.Ptr(int(request.Msg.Limit)),
+		Offset:    utils.Ptr(int(request.Msg.Offset)),
+		SortField: utils.Ptr(request.Msg.SortField),
+		SortOrder: utils.Ptr(request.Msg.SortOrder),
 	})
 	if err != nil {
 		return nil, toConnectErr(err)
@@ -63,7 +64,7 @@ func (s *ArtistsServer) ListArtists(ctx context.Context, request *connect.Reques
 
 func (s *ArtistsServer) UpdateArtist(ctx context.Context, request *connect.Request[protov1.UpdateArtistRequest]) (*connect.Response[protov1.UpdateArtistResponse], error) {
 	err := s.svc.UpdateArtist(ctx, domain.UpdateArtistRequest{
-		ID:   StringToUUIDPtr(request.Msg.Id),
+		ID:   utils.StringToUUIDPtr(request.Msg.Id),
 		Name: request.Msg.Name,
 		Bio:  request.Msg.Bio,
 	})
@@ -76,7 +77,7 @@ func (s *ArtistsServer) UpdateArtist(ctx context.Context, request *connect.Reque
 
 func (s *ArtistsServer) DeleteArtist(ctx context.Context, request *connect.Request[protov1.DeleteArtistRequest]) (*connect.Response[protov1.DeleteArtistResponse], error) {
 	err := s.svc.DeleteArtist(ctx, domain.DeleteArtistRequest{
-		ID: StringToUUIDPtr(request.Msg.Id),
+		ID: utils.StringToUUIDPtr(request.Msg.Id),
 	})
 	if err != nil {
 		return nil, toConnectErr(err)

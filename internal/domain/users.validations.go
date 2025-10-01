@@ -36,8 +36,8 @@ func (r *GetUserRequest) Validate() error {
 
 func (r *ListUsersRequest) Validate() error {
 	return validation.ValidateStruct(r,
-		validation.Field(&r.Limit, validation.Required, validation.Min(1)),
-		validation.Field(&r.Offset, validation.Required, validation.Min(0)),
+		validation.Field(&r.Limit, validation.Min(1)),
+		validation.Field(&r.Offset, validation.Min(0)),
 		validation.Field(&r.SortField, validation.Required, validatron.InStringsPtr(sortableUserFields, "sort_field")),
 		validation.Field(&r.SortOrder, validation.Required, validatron.InStringsPtr(validatron.SortOrders, "sort_order")),
 		validation.Field(&r.Role, validation.When(r.Role != nil, validatron.InSetPtr(roleSet))),

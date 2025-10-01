@@ -4,6 +4,8 @@ import (
 	"context"
 	"time"
 
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -50,4 +52,12 @@ func (c *Client) QueryTimeout() time.Duration {
 
 func (c *Client) Driver() Driver {
 	return c.driver
+}
+
+func (c *Client) Query(ctx context.Context, sqlQuery string, arguments ...any) (pgx.Rows, error) {
+	return c.driver.Query(ctx, sqlQuery, arguments...)
+}
+
+func (c *Client) Exec(ctx context.Context, sqlQuery string, arguments ...any) (pgconn.CommandTag, error) {
+	return c.driver.Exec(ctx, sqlQuery, arguments...)
 }

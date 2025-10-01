@@ -8,7 +8,7 @@ import (
 )
 
 type ArtistsRepository struct {
-	db *postgres.Client // TODO реализовать интерфейс для fetch и прокидывать просто r.db
+	db *postgres.Client
 }
 
 func NewArtistsRepository(db *postgres.Client) *ArtistsRepository {
@@ -29,12 +29,14 @@ func (r *ArtistsRepository) CreateArtist(ctx context.Context, request domain.Cre
 		request.Bio,
 	}
 
-	artist, err := postgres.FetchOne[domain.Artist](ctx, r.db.Driver(), createArtistSQL, arguments...) // TODO реализовать интерфейс для fetch и прокидывать просто r.db
+	artist, err := postgres.FetchOne[domain.Artist](ctx, r.db, createArtistSQL, arguments...)
 	if err != nil {
 		return nil, err
 	}
 
-	return &domain.CreateArtistResponse{ID: artist.ID}, nil
+	return &domain.CreateArtistResponse{
+		ID: artist.ID,
+	}, nil
 }
 
 func (r *ArtistsRepository) GetArtist(ctx context.Context, request domain.GetArtistRequest) (*domain.GetArtistResponse, error) {
@@ -53,12 +55,14 @@ func (r *ArtistsRepository) GetArtist(ctx context.Context, request domain.GetArt
 		request.ID,
 	}
 
-	artist, err := postgres.FetchOne[domain.Artist](ctx, r.db.Driver(), getArtistSQL, arguments...)
+	artist, err := postgres.FetchOne[domain.Artist](ctx, r.db, getArtistSQL, arguments...)
 	if err != nil {
 		return nil, err
 	}
 
-	return &domain.GetArtistResponse{Artist: artist}, nil
+	return &domain.GetArtistResponse{
+		Artist: artist,
+	}, nil
 }
 
 func (r *ArtistsRepository) ListArtists(ctx context.Context, request domain.ListArtistsRequest) (*domain.ListArtistsResponse, error) {
@@ -106,7 +110,7 @@ func (r *ArtistsRepository) ListArtists(ctx context.Context, request domain.List
 		request.Offset,
 	}
 
-	artists, err := postgres.FetchMany[domain.Artist](ctx, r.db.Driver(), listArtistsSQL, arguments...)
+	artists, err := postgres.FetchMany[domain.Artist](ctx, r.db, listArtistsSQL, arguments...)
 	if err != nil {
 		return nil, err
 	}
@@ -132,7 +136,7 @@ func (r *ArtistsRepository) UpdateArtist(ctx context.Context, request domain.Upd
 		request.Bio,
 	}
 
-	_, err := postgres.FetchOne[domain.Artist](ctx, r.db.Driver(), updateArtistSQL, arguments...)
+	_, err := postgres.FetchOne[domain.Artist](ctx, r.db, updateArtistSQL, arguments...)
 	if err != nil {
 		return err
 	}
@@ -145,7 +149,7 @@ func (r *ArtistsRepository) DeleteArtist(ctx context.Context, request domain.Del
 		delete from artists where id = $1;
 	`
 
-	affected, err := postgres.ExecAffected(ctx, r.db.Driver(), deleteArtistSQL, *request.ID)
+	affected, err := postgres.ExecAffected(ctx, r.db, deleteArtistSQL, *request.ID)
 	if err != nil {
 		return err
 	}

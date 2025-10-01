@@ -1,4 +1,4 @@
-package connect
+package utils
 
 import (
 	"time"
@@ -62,6 +62,26 @@ func Int32ToInt16(value *int32) *int16 {
 	num := int16(*value)
 
 	return &num
+}
+
+func Int32ToInt(value *int32) *int {
+	if value == nil {
+		return nil
+	}
+
+	v := int(*value)
+
+	return &v
+}
+
+func IntToInt32(value *int) *int32 {
+	if value == nil {
+		return nil
+	}
+
+	v := int32(*value)
+
+	return &v
 }
 
 func Integer[T2, T1 constraints.Integer](value T1) T2 {

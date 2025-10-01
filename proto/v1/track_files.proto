@@ -1,0 +1,104 @@
+syntax = "proto3";
+
+package proto.v1;
+
+import "google/protobuf/duration.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/untea/bottom_babruysk/internal/transport/gen/proto/v1;protov1";
+
+service TrackFilesService {
+  rpc GetTrackFile(GetTrackFileRequest) returns (GetTrackFileResponse);
+  rpc ListTrackFiles(ListTrackFilesRequest) returns (ListTrackFilesResponse);
+  rpc UpdateTrackFile(UpdateTrackFileRequest) returns (UpdateTrackFileResponse);
+  rpc DeleteTrackFile(DeleteTrackFileRequest) returns (DeleteTrackFileResponse);
+}
+
+message TrackFile {
+  string id = 1;
+  string track_id = 2;
+  string filename = 3;
+  optional string s3_key = 4;
+  string mime = 5;
+  Format format = 6;
+  Codec codec = 7;
+  int32 bitrate = 8;
+  int32 sample_rate = 9;
+  int32 channels = 10;
+  int64 size = 11;
+  google.protobuf.Duration duration = 12;
+  string checksum = 13;
+  google.protobuf.Timestamp created_at = 14;
+  google.protobuf.Timestamp updated_at = 15;
+  google.protobuf.Timestamp uploaded_at = 16;
+}
+
+enum Format {
+  FORMAT_UNSPECIFIED = 0;
+  FORMAT_MP3 = 1;
+  FORMAT_MP4 = 2;
+  FORMAT_M4A = 3;
+  FORMAT_OGG = 4;
+  FORMAT_FLAC = 5;
+  FORMAT_WAV = 6;
+  FORMAT_WEBM = 7;
+  FORMAT_AAC = 8;
+}
+
+enum Codec {
+  CODEC_UNSPECIFIED = 0;
+  CODEC_WAV = 1;
+  CODEC_FLAC = 2;
+  CODEC_ALAC = 3;
+  CODEC_APE = 4;
+  CODEC_SHN = 5;
+  CODEC_MP3 = 6;
+  CODEC_AAC = 7;
+  CODEC_OPUS = 8;
+  CODEC_VORBIS = 9;
+  CODEC_WMA = 10;
+}
+
+message GetTrackFileRequest {
+  string id = 1;
+  string track_id = 2;
+}
+
+message GetTrackFileResponse {
+  TrackFile file = 1;
+}
+
+message ListTrackFilesRequest {
+  string track_id = 1;
+  uint32 limit = 2;
+  uint32 offset = 3;
+  string sort_field = 4;
+  string sort_order = 5;
+}
+message ListTrackFilesResponse {
+  repeated TrackFile files = 1;
+}
+
+message UpdateTrackFileRequest {
+  string id = 1;
+  string track_id = 2;
+  optional string filename = 3;
+  optional string s3_key = 4;
+  optional string mime = 5;
+  optional Format format = 6;
+  optional Codec codec = 7;
+  optional int32 bitrate = 8;
+  optional int32 sample_rate = 9;
+  optional int32 channels = 10;
+  optional int64 size = 11;
+  optional google.protobuf.Duration duration = 12;
+  optional string checksum = 13;
+}
+message UpdateTrackFileResponse {}
+
+message DeleteTrackFileRequest {
+  string id = 1;
+  string track_id = 2;
+}
+
+message DeleteTrackFileResponse {}

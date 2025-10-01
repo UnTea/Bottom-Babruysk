@@ -8,7 +8,7 @@ import (
 )
 
 type AlbumsRepository struct {
-	db *postgres.Client // TODO реализовать интерфейс для fetch и прокидывать просто r.db
+	db *postgres.Client
 }
 
 func NewAlbumsRepository(db *postgres.Client) *AlbumsRepository {
@@ -29,7 +29,7 @@ func (r *AlbumsRepository) CreateAlbum(ctx context.Context, request domain.Creat
 		request.ReleaseDate,
 	}
 
-	album, err := postgres.FetchOne[domain.Album](ctx, r.db.Driver(), createAlbumSQL, arguments...) // TODO реализовать интерфейс для fetch и прокидывать просто r.db
+	album, err := postgres.FetchOne[domain.Album](ctx, r.db, createAlbumSQL, arguments...)
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +50,7 @@ func (r *AlbumsRepository) GetAlbum(ctx context.Context, request domain.GetAlbum
 		request.ID,
 	}
 
-	album, err := postgres.FetchOne[domain.Album](ctx, r.db.Driver(), getAlbumSQL, arguments...) // TODO реализовать интерфейс для fetch и прокидывать просто r.db
+	album, err := postgres.FetchOne[domain.Album](ctx, r.db, getAlbumSQL, arguments...)
 	if err != nil {
 		return nil, err
 	}
@@ -97,7 +97,7 @@ func (r *AlbumsRepository) ListAlbums(ctx context.Context, request domain.ListAl
 		request.Offset,
 	}
 
-	albums, err := postgres.FetchMany[domain.Album](ctx, r.db.Driver(), getListAlbumsSQL, arguments...) // TODO реализовать интерфейс для fetch и прокидывать просто r.db
+	albums, err := postgres.FetchMany[domain.Album](ctx, r.db, getListAlbumsSQL, arguments...)
 	if err != nil {
 		return nil, err
 	}
@@ -125,7 +125,7 @@ func (r *AlbumsRepository) UpdateAlbum(ctx context.Context, request domain.Updat
 		request.ReleaseDate,
 	}
 
-	_, err := postgres.FetchOne[domain.Album](ctx, r.db.Driver(), updateAlbumSQL, arguments...) // TODO реализовать интерфейс для fetch и прокидывать просто r.db
+	_, err := postgres.FetchOne[domain.Album](ctx, r.db, updateAlbumSQL, arguments...)
 	if err != nil {
 		return err
 	}
@@ -138,7 +138,11 @@ func (r *AlbumsRepository) DeleteAlbum(ctx context.Context, request domain.Delet
 		delete from albums where id = $1;
 	`
 
-	affected, err := postgres.ExecAffected(ctx, r.db.Driver(), deleteAlbumSQL, request.ID) // TODO реализовать интерфейс для fetch и прокидывать просто r.db
+	arguments := []any{
+		request.ID,
+	}
+
+	affected, err := postgres.ExecAffected(ctx, r.db, deleteAlbumSQL, arguments...)
 	if err != nil {
 		return err
 	}

@@ -8,7 +8,7 @@ import (
 )
 
 type PlaylistsRepository struct {
-	db *postgres.Client // TODO реализовать интерфейс для fetch и прокидывать просто r.db
+	db *postgres.Client
 }
 
 func NewPlaylistsRepository(db *postgres.Client) *PlaylistsRepository {
@@ -35,12 +35,14 @@ func (r *PlaylistsRepository) CreatePlaylist(ctx context.Context, request domain
 		request.Visibility,
 	}
 
-	playlist, err := postgres.FetchOne[domain.Playlist](ctx, r.db.Driver(), createPlaylistSQL, arguments...) // TODO реализовать интерфейс для fetch и прокидывать просто r.db
+	playlist, err := postgres.FetchOne[domain.Playlist](ctx, r.db, createPlaylistSQL, arguments...)
 	if err != nil {
 		return nil, err
 	}
 
-	return &domain.CreatePlaylistResponse{ID: playlist.ID}, nil
+	return &domain.CreatePlaylistResponse{
+		ID: playlist.ID,
+	}, nil
 }
 
 func (r *PlaylistsRepository) GetPlaylist(ctx context.Context, request domain.GetPlaylistRequest) (*domain.GetPlaylistResponse, error) {
@@ -61,12 +63,14 @@ func (r *PlaylistsRepository) GetPlaylist(ctx context.Context, request domain.Ge
 		request.ID,
 	}
 
-	playlist, err := postgres.FetchOne[domain.Playlist](ctx, r.db.Driver(), getPlaylistSQL, arguments...) // TODO реализовать интерфейс для fetch и прокидывать просто r.db
+	playlist, err := postgres.FetchOne[domain.Playlist](ctx, r.db, getPlaylistSQL, arguments...)
 	if err != nil {
 		return nil, err
 	}
 
-	return &domain.GetPlaylistResponse{Playlist: playlist}, nil
+	return &domain.GetPlaylistResponse{
+		Playlist: playlist,
+	}, nil
 }
 
 func (r *PlaylistsRepository) ListPlaylists(ctx context.Context, request domain.ListPlaylistsRequest) (*domain.ListPlaylistsResponse, error) {
@@ -116,12 +120,14 @@ func (r *PlaylistsRepository) ListPlaylists(ctx context.Context, request domain.
 		request.Offset,
 	}
 
-	playlists, err := postgres.FetchMany[domain.Playlist](ctx, r.db.Driver(), listPlaylistSQL, arguments...) // TODO реализовать интерфейс для fetch и прокидывать просто r.db
+	playlists, err := postgres.FetchMany[domain.Playlist](ctx, r.db, listPlaylistSQL, arguments...)
 	if err != nil {
 		return nil, err
 	}
 
-	return &domain.ListPlaylistsResponse{Playlists: playlists}, nil
+	return &domain.ListPlaylistsResponse{
+		Playlists: playlists,
+	}, nil
 }
 
 func (r *PlaylistsRepository) UpdatePlaylist(ctx context.Context, request domain.UpdatePlaylistRequest) error {
@@ -142,7 +148,7 @@ func (r *PlaylistsRepository) UpdatePlaylist(ctx context.Context, request domain
 		request.Visibility,
 	}
 
-	_, err := postgres.FetchOne[domain.Playlist](ctx, r.db.Driver(), updatePlaylistSQL, arguments...) // TODO реализовать интерфейс для fetch и прокидывать просто r.db
+	_, err := postgres.FetchOne[domain.Playlist](ctx, r.db, updatePlaylistSQL, arguments...)
 	if err != nil {
 		return err
 	}
@@ -159,7 +165,7 @@ func (r *PlaylistsRepository) DeletePlaylist(ctx context.Context, request domain
 		request.ID,
 	}
 
-	affected, err := postgres.ExecAffected(ctx, r.db.Driver(), deletePlaylistSQL, arguments...) // TODO реализовать интерфейс для fetch и прокидывать просто r.db
+	affected, err := postgres.ExecAffected(ctx, r.db, deletePlaylistSQL, arguments...)
 	if err != nil {
 		return err
 	}

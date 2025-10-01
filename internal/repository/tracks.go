@@ -8,7 +8,7 @@ import (
 )
 
 type TracksRepository struct {
-	db *postgres.Client // TODO реализовать интерфейс для fetch и прокидывать просто r.db
+	db *postgres.Client
 }
 
 func NewTracksRepository(db *postgres.Client) *TracksRepository {
@@ -44,12 +44,14 @@ func (r *TracksRepository) CreateTrack(ctx context.Context, request domain.Creat
 		request.UploadedAt,
 	}
 
-	track, err := postgres.FetchOne[domain.Track](ctx, r.db.Driver(), createTracksQL, arguments...) // TODO реализовать интерфейс для fetch и прокидывать просто r.db
+	track, err := postgres.FetchOne[domain.Track](ctx, r.db, createTracksQL, arguments...)
 	if err != nil {
 		return nil, err
 	}
 
-	return &domain.CreateTrackResponse{ID: track.ID}, nil
+	return &domain.CreateTrackResponse{
+		ID: track.ID,
+	}, nil
 }
 
 func (r *TracksRepository) GetTrack(ctx context.Context, request domain.GetTrackRequest) (*domain.GetTrackResponse, error) {
@@ -73,12 +75,14 @@ func (r *TracksRepository) GetTrack(ctx context.Context, request domain.GetTrack
 		request.ID,
 	}
 
-	track, err := postgres.FetchOne[domain.Track](ctx, r.db.Driver(), getTracksQL, arguments...) // TODO реализовать интерфейс для fetch и прокидывать просто r.db
+	track, err := postgres.FetchOne[domain.Track](ctx, r.db, getTracksQL, arguments...)
 	if err != nil {
 		return nil, err
 	}
 
-	return &domain.GetTrackResponse{Track: track}, nil
+	return &domain.GetTrackResponse{
+		Track: track,
+	}, nil
 }
 
 func (r *TracksRepository) ListTracks(ctx context.Context, request domain.ListTracksRequest) (*domain.ListTracksResponse, error) {
@@ -134,12 +138,14 @@ func (r *TracksRepository) ListTracks(ctx context.Context, request domain.ListTr
 		request.Offset,
 	}
 
-	tracks, err := postgres.FetchMany[domain.Track](ctx, r.db.Driver(), getListTracksSQL, arguments...) // TODO реализовать интерфейс для fetch и прокидывать просто r.db
+	tracks, err := postgres.FetchMany[domain.Track](ctx, r.db, getListTracksSQL, arguments...)
 	if err != nil {
 		return nil, err
 	}
 
-	return &domain.ListTracksResponse{Tracks: tracks}, nil
+	return &domain.ListTracksResponse{
+		Tracks: tracks,
+	}, nil
 }
 
 func (r *TracksRepository) UpdateTrack(ctx context.Context, request domain.UpdateTrackRequest) error {
@@ -162,7 +168,7 @@ func (r *TracksRepository) UpdateTrack(ctx context.Context, request domain.Updat
 		request.Visibility,
 	}
 
-	_, err := postgres.FetchOne[domain.Track](ctx, r.db.Driver(), updateTracksQL, arguments...) // TODO реализовать интерфейс для fetch и прокидывать просто r.db
+	_, err := postgres.FetchOne[domain.Track](ctx, r.db, updateTracksQL, arguments...)
 	if err != nil {
 		return err
 	}
@@ -179,7 +185,7 @@ func (r *TracksRepository) DeleteTrack(ctx context.Context, request domain.Delet
 		request.ID,
 	}
 
-	affected, err := postgres.ExecAffected(ctx, r.db.Driver(), deleteTracksQL, arguments...) // TODO реализовать интерфейс для fetch и прокидывать просто r.db
+	affected, err := postgres.ExecAffected(ctx, r.db, deleteTracksQL, arguments...)
 	if err != nil {
 		return err
 	}

@@ -8,6 +8,7 @@ import (
 	"github.com/untea/bottom_babruysk/internal/domain"
 	"github.com/untea/bottom_babruysk/internal/service"
 	protov1 "github.com/untea/bottom_babruysk/internal/transport/gen/proto/v1"
+	"github.com/untea/bottom_babruysk/utils"
 )
 
 type PlaylistsServer struct {
@@ -20,9 +21,9 @@ func NewPlaylistsServer(playlistsService *service.PlaylistsService) *PlaylistsSe
 
 func (s *PlaylistsServer) CreatePlaylist(ctx context.Context, request *connect.Request[protov1.CreatePlaylistRequest]) (*connect.Response[protov1.CreatePlaylistResponse], error) {
 	response, err := s.playlistsService.CreatePlaylist(ctx, domain.CreatePlaylistRequest{
-		OwnerID:     StringToUUIDPtr(request.Msg.OwnerId),
-		Title:       Ptr(request.Msg.Title),
-		Description: Ptr(request.Msg.Description),
+		OwnerID:     utils.StringToUUIDPtr(request.Msg.OwnerId),
+		Title:       utils.Ptr(request.Msg.Title),
+		Description: utils.Ptr(request.Msg.Description),
 		Visibility:  FromProtoVisibility(request.Msg.Visibility),
 	})
 	if err != nil {
@@ -34,7 +35,7 @@ func (s *PlaylistsServer) CreatePlaylist(ctx context.Context, request *connect.R
 
 func (s *PlaylistsServer) GetPlaylist(ctx context.Context, request *connect.Request[protov1.GetPlaylistRequest]) (*connect.Response[protov1.GetPlaylistResponse], error) {
 	out, err := s.playlistsService.GetPlaylist(ctx, domain.GetPlaylistRequest{
-		ID: StringToUUIDPtr(request.Msg.Id),
+		ID: utils.StringToUUIDPtr(request.Msg.Id),
 	})
 	if err != nil {
 		return nil, toConnectErr(err)
@@ -45,12 +46,12 @@ func (s *PlaylistsServer) GetPlaylist(ctx context.Context, request *connect.Requ
 
 func (s *PlaylistsServer) ListPlaylists(ctx context.Context, request *connect.Request[protov1.ListPlaylistsRequest]) (*connect.Response[protov1.ListPlaylistsResponse], error) {
 	response, err := s.playlistsService.ListPlaylists(ctx, domain.ListPlaylistsRequest{
-		Limit:      Ptr(int(request.Msg.Limit)),
-		Offset:     Ptr(int(request.Msg.Offset)),
-		OwnerID:    StringToUUIDPtr(request.Msg.OwnerId),
+		Limit:      utils.Ptr(int(request.Msg.Limit)),
+		Offset:     utils.Ptr(int(request.Msg.Offset)),
+		OwnerID:    utils.StringToUUIDPtr(request.Msg.OwnerId),
 		Visibility: FromProtoVisibility(request.Msg.Visibility),
-		SortField:  Ptr(request.Msg.SortField),
-		SortOrder:  Ptr(request.Msg.SortOrder),
+		SortField:  utils.Ptr(request.Msg.SortField),
+		SortOrder:  utils.Ptr(request.Msg.SortOrder),
 	})
 	if err != nil {
 		return nil, toConnectErr(err)
@@ -67,7 +68,7 @@ func (s *PlaylistsServer) ListPlaylists(ctx context.Context, request *connect.Re
 
 func (s *PlaylistsServer) UpdatePlaylist(ctx context.Context, request *connect.Request[protov1.UpdatePlaylistRequest]) (*connect.Response[protov1.UpdatePlaylistResponse], error) {
 	err := s.playlistsService.UpdatePlaylist(ctx, domain.UpdatePlaylistRequest{
-		ID:          StringToUUIDPtr(request.Msg.Id),
+		ID:          utils.StringToUUIDPtr(request.Msg.Id),
 		Title:       request.Msg.Title,
 		Description: request.Msg.Description,
 		Visibility:  FromProtoVisibility(*request.Msg.Visibility),
@@ -81,7 +82,7 @@ func (s *PlaylistsServer) UpdatePlaylist(ctx context.Context, request *connect.R
 
 func (s *PlaylistsServer) DeletePlaylist(ctx context.Context, request *connect.Request[protov1.DeletePlaylistRequest]) (*connect.Response[protov1.DeletePlaylistResponse], error) {
 	err := s.playlistsService.DeletePlaylist(ctx, domain.DeletePlaylistRequest{
-		ID: StringToUUIDPtr(request.Msg.Id),
+		ID: utils.StringToUUIDPtr(request.Msg.Id),
 	})
 	if err != nil {
 		return nil, toConnectErr(err)

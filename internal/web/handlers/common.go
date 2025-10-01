@@ -56,8 +56,7 @@ func Lift[R any](f func(ctx context.Context, request R) error) func(ctx context.
 	}
 }
 
-func Handle[R any, T any](h *Handler, action func(ctx context.Context, request R) (T, error),
-) http.HandlerFunc {
+func Handle[R any, T any](h *Handler, action func(ctx context.Context, request R) (T, error)) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		request, err := Decode[R](r)
 		if err != nil {

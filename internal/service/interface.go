@@ -45,3 +45,11 @@ type Artists interface {
 	UpdateArtist(context.Context, domain.UpdateArtistRequest) error
 	DeleteArtist(context.Context, domain.DeleteArtistRequest) error
 }
+
+type TrackFiles interface {
+	CreateTrackFile(context.Context, domain.CreateTrackFileRequest) (*domain.CreateTrackFileResponse, error)
+	GetTrackFile(context.Context, domain.GetTrackFileRequest) (*domain.GetTrackFileResponse, error)
+	ListTrackFiles(context.Context, domain.ListTrackFilesRequest) (*domain.ListTrackFilesResponse, error)
+	UpdateTrackFile(context.Context, domain.UpdateTrackFileRequest) error
+	DeleteTrackFile(context.Context, domain.DeleteTrackFileRequest) error
+}

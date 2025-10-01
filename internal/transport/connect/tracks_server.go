@@ -8,6 +8,7 @@ import (
 	"github.com/untea/bottom_babruysk/internal/domain"
 	"github.com/untea/bottom_babruysk/internal/service"
 	protov1 "github.com/untea/bottom_babruysk/internal/transport/gen/proto/v1"
+	"github.com/untea/bottom_babruysk/utils"
 )
 
 type TracksServer struct {
@@ -20,7 +21,7 @@ func NewTracksServer(tracksService *service.TracksService) *TracksServer {
 
 func (s *TracksServer) GetTrack(ctx context.Context, request *connect.Request[protov1.GetTrackRequest]) (*connect.Response[protov1.GetTrackResponse], error) {
 	response, err := s.tracksService.GetTrack(ctx, domain.GetTrackRequest{
-		ID: StringToUUIDPtr(request.Msg.Id),
+		ID: utils.StringToUUIDPtr(request.Msg.Id),
 	})
 	if err != nil {
 		return nil, connect.NewError(connect.CodeNotFound, err)
@@ -31,12 +32,12 @@ func (s *TracksServer) GetTrack(ctx context.Context, request *connect.Request[pr
 
 func (s *TracksServer) ListTracks(ctx context.Context, request *connect.Request[protov1.ListTracksRequest]) (*connect.Response[protov1.ListTracksResponse], error) {
 	response, err := s.tracksService.ListTracks(ctx, domain.ListTracksRequest{
-		Limit:      Ptr(int(request.Msg.Limit)),
-		Offset:     Ptr(int(request.Msg.Offset)),
-		UploaderID: StringToUUIDPtr(request.Msg.UploaderId),
+		Limit:      utils.Ptr(int(request.Msg.Limit)),
+		Offset:     utils.Ptr(int(request.Msg.Offset)),
+		UploaderID: utils.StringToUUIDPtr(request.Msg.UploaderId),
 		Visibility: FromProtoVisibility(request.Msg.Visibility),
-		SortField:  Ptr(request.Msg.SortField),
-		SortOrder:  Ptr(request.Msg.SortOrder),
+		SortField:  utils.Ptr(request.Msg.SortField),
+		SortOrder:  utils.Ptr(request.Msg.SortOrder),
 	})
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInvalidArgument, err)
@@ -53,7 +54,7 @@ func (s *TracksServer) ListTracks(ctx context.Context, request *connect.Request[
 
 func (s *TracksServer) UpdateTrack(ctx context.Context, request *connect.Request[protov1.UpdateTrackRequest]) (*connect.Response[protov1.UpdateTrackResponse], error) {
 	err := s.tracksService.UpdateTrack(ctx, domain.UpdateTrackRequest{
-		ID:          StringToUUIDPtr(request.Msg.Id),
+		ID:          utils.StringToUUIDPtr(request.Msg.Id),
 		Title:       request.Msg.Title,
 		Subtitle:    request.Msg.Subtitle,
 		Description: request.Msg.Description,
@@ -68,7 +69,7 @@ func (s *TracksServer) UpdateTrack(ctx context.Context, request *connect.Request
 
 func (s *TracksServer) DeleteTrack(ctx context.Context, request *connect.Request[protov1.DeleteTrackRequest]) (*connect.Response[protov1.DeleteTrackResponse], error) {
 	if err := s.tracksService.DeleteTrack(ctx, domain.DeleteTrackRequest{
-		ID: StringToUUIDPtr(request.Msg.Id),
+		ID: utils.StringToUUIDPtr(request.Msg.Id),
 	}); err != nil {
 		return nil, connect.NewError(connect.CodeNotFound, err)
 	}

@@ -22,10 +22,15 @@ type ArtistsHTTP interface {
 	MountArtists(r chi.Router)
 }
 
+type TrackFilesHTTP interface {
+	MountTrackFiles(r chi.Router)
+}
+
 type HandlerHTTP interface {
 	UsersHTTP
 	AlbumsHTTP
 	TracksHTTP
 	PlaylistsHTTP
 	ArtistsHTTP
+	TrackFilesHTTP
 }

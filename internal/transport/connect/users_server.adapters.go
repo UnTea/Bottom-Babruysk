@@ -3,6 +3,7 @@ package connect
 import (
 	"github.com/untea/bottom_babruysk/internal/domain"
 	protov1 "github.com/untea/bottom_babruysk/internal/transport/gen/proto/v1"
+	"github.com/untea/bottom_babruysk/utils"
 )
 
 // TODO сделать автогенерацию типов для grpc уровня
@@ -13,12 +14,12 @@ func toProtoUser(user *domain.User) *protov1.User {
 
 	return &protov1.User{
 		Id:           user.ID.String(),
-		Email:        ValueOrZero(user.Email),
-		PasswordHash: ValueOrZero(user.PasswordHash),
-		DisplayName:  ValueOrZero(user.DisplayName),
+		Email:        utils.ValueOrZero(user.Email),
+		PasswordHash: utils.ValueOrZero(user.PasswordHash),
+		DisplayName:  utils.ValueOrZero(user.DisplayName),
 		Role:         ToProtoRole(user.Role),
-		CreatedAt:    TimeToTimestamppb(user.CreatedAt),
-		UpdatedAt:    TimeToTimestamppb(user.UpdatedAt),
+		CreatedAt:    utils.TimeToTimestamppb(user.CreatedAt),
+		UpdatedAt:    utils.TimeToTimestamppb(user.UpdatedAt),
 	}
 }
 
@@ -46,7 +47,7 @@ func FromProtoRole(role protov1.Role) *domain.Role {
 		x := domain.RoleAdmin
 		return &x
 	default:
-		x := domain.RoleUser
+		x := domain.RoleUnspecified
 		return &x
 	}
 }

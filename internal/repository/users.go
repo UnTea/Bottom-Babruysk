@@ -8,7 +8,7 @@ import (
 )
 
 type UsersRepository struct {
-	db *postgres.Client // TODO реализовать интерфейс для fetch и прокидывать просто r.db
+	db *postgres.Client
 }
 
 func NewUsersRepository(db *postgres.Client) *UsersRepository {
@@ -35,12 +35,14 @@ func (r *UsersRepository) CreateUser(ctx context.Context, request domain.CreateU
 		request.Role,
 	}
 
-	user, err := postgres.FetchOne[domain.User](ctx, r.db.Driver(), createUserSQL, arguments...) // TODO реализовать интерфейс для fetch и прокидывать просто r.db
+	user, err := postgres.FetchOne[domain.User](ctx, r.db, createUserSQL, arguments...)
 	if err != nil {
 		return nil, err
 	}
 
-	return &domain.CreateUserResponse{ID: user.ID}, nil
+	return &domain.CreateUserResponse{
+		ID: user.ID,
+	}, nil
 }
 
 func (r *UsersRepository) GetUser(ctx context.Context, request domain.GetUserRequest) (*domain.GetUserResponse, error) {
@@ -60,12 +62,14 @@ func (r *UsersRepository) GetUser(ctx context.Context, request domain.GetUserReq
 		request.ID,
 	}
 
-	user, err := postgres.FetchOne[domain.User](ctx, r.db.Driver(), getUserSQL, arguments...) // TODO реализовать интерфейс для fetch и прокидывать просто r.db
+	user, err := postgres.FetchOne[domain.User](ctx, r.db, getUserSQL, arguments...)
 	if err != nil {
 		return nil, err
 	}
 
-	return &domain.GetUserResponse{User: user}, nil
+	return &domain.GetUserResponse{
+		User: user,
+	}, nil
 }
 
 func (r *UsersRepository) ListUsers(ctx context.Context, request domain.ListUsersRequest) (*domain.ListUsersResponse, error) {
@@ -118,12 +122,14 @@ func (r *UsersRepository) ListUsers(ctx context.Context, request domain.ListUser
 		request.Offset,
 	}
 
-	users, err := postgres.FetchMany[domain.User](ctx, r.db.Driver(), getListUsersSQL, arguments...) // TODO реализовать интерфейс для fetch и прокидывать просто r.db
+	users, err := postgres.FetchMany[domain.User](ctx, r.db, getListUsersSQL, arguments...)
 	if err != nil {
 		return nil, err
 	}
 
-	return &domain.ListUsersResponse{Users: users}, nil
+	return &domain.ListUsersResponse{
+		Users: users,
+	}, nil
 }
 
 func (r *UsersRepository) UpdateUser(ctx context.Context, request domain.UpdateUserRequest) error {
@@ -142,7 +148,7 @@ func (r *UsersRepository) UpdateUser(ctx context.Context, request domain.UpdateU
 		request.Role,
 	}
 
-	_, err := postgres.FetchOne[domain.User](ctx, r.db.Driver(), updateUserSQL, arguments...) // TODO реализовать интерфейс для fetch и прокидывать просто r.db
+	_, err := postgres.FetchOne[domain.User](ctx, r.db, updateUserSQL, arguments...)
 	if err != nil {
 		return err
 	}
@@ -159,7 +165,7 @@ func (r *UsersRepository) DeleteUser(ctx context.Context, request domain.DeleteU
 		request.ID,
 	}
 
-	affected, err := postgres.ExecAffected(ctx, r.db.Driver(), deleteUserSQL, arguments...) // TODO реализовать интерфейс для fetch и прокидывать просто r.db
+	affected, err := postgres.ExecAffected(ctx, r.db, deleteUserSQL, arguments...)
 	if err != nil {
 		return err
 	}
