@@ -17,15 +17,15 @@ const (
 
 type Track struct {
 	ID          *uuid.UUID     `db:"id"          json:"id,omitempty"`
-	UploaderID  *uuid.UUID     `db:"uploader_id" json:"uploaderID,omitempty"`
+	UploaderID  *uuid.UUID     `db:"uploader_id" json:"uploader_id,omitempty"`
 	Title       *string        `db:"title"       json:"title,omitempty"`
 	Subtitle    *string        `db:"subtitle"    json:"subtitle,omitempty"`
 	Description *string        `db:"description" json:"description,omitempty"`
 	Duration    *time.Duration `db:"duration"    json:"duration,omitempty"`
 	Visibility  *Visibility    `db:"visibility"  json:"visibility,omitempty"`
-	CreatedAt   *time.Time     `db:"created_at"  json:"createdAt,omitempty"`
-	UpdatedAt   *time.Time     `db:"updated_at"  json:"updatedAt,omitempty"`
-	UploadedAt  *time.Time     `db:"uploaded_at" json:"uploadedAt,omitempty"`
+	CreatedAt   *time.Time     `db:"created_at"  json:"created_at,omitempty"`
+	UpdatedAt   *time.Time     `db:"updated_at"  json:"updated_at,omitempty"`
+	UploadedAt  *time.Time     `db:"uploaded_at" json:"uploaded_at,omitempty"`
 }
 
 type (

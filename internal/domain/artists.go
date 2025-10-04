@@ -10,8 +10,8 @@ type Artist struct {
 	ID        *uuid.UUID `db:"id"         json:"id,omitempty"`
 	Name      *string    `db:"name"       json:"name,omitempty"`
 	Bio       *string    `db:"bio"        json:"bio,omitempty"`
-	CreatedAt *time.Time `db:"created_at" json:"createdAt,omitempty"`
-	UpdatedAt *time.Time `db:"updated_at" json:"updatedAt,omitempty"`
+	CreatedAt *time.Time `db:"created_at" json:"created_at,omitempty"`
+	UpdatedAt *time.Time `db:"updated_at" json:"updated_at,omitempty"`
 }
 
 type (

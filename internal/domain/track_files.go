@@ -53,7 +53,7 @@ type TrackFile struct {
 	Channels   *int           `db:"channels"    json:"channels,omitempty"`
 	Size       *int64         `db:"size"        json:"size,omitempty"`
 	Duration   *time.Duration `db:"duration"    json:"duration,omitempty"`
-	Checksum   *string        `db:"checksum"    json:"checksum,omitempty"`
+	Checksum   []byte         `db:"checksum"    json:"checksum,omitempty"`
 	CreatedAt  *time.Time     `db:"created_at"  json:"created_at,omitempty"`
 	UpdatedAt  *time.Time     `db:"updated_at"  json:"updated_at,omitempty"`
 	UploadedAt *time.Time     `db:"uploaded_at" json:"uploaded_at,omitempty"`
@@ -72,7 +72,7 @@ type (
 		Channels   *int           `db:"channels"    json:"channels,omitempty"`
 		Size       *int64         `db:"size"        json:"size,omitempty"`
 		Duration   *time.Duration `db:"duration"    json:"duration,omitempty"`
-		Checksum   *string        `db:"checksum"    json:"checksum,omitempty"`
+		Checksum   []byte         `db:"checksum"    json:"checksum,omitempty"`
 		UploadedAt *time.Time     `db:"uploaded_at" json:"uploaded_at,omitempty"`
 	}
 

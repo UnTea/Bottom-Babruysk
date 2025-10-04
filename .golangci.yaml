@@ -1,7 +1,7 @@
 version: "2"
 run:
   concurrency: 2
-  go: "1.24"
+  go: "1.25"
   modules-download-mode: readonly
   issues-exit-code: 1
   tests: false
@@ -45,10 +45,6 @@ linters:
       - common-false-positives
       - legacy
       - std-error-handling
-    rules:
-      - linters:
-          - funlen
-        path: internal\/database\/(.+)\.go
 issues:
   uniq-by-line: true
 formatters:

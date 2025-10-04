@@ -14,17 +14,14 @@ alter table albums
 -- Genres
 create table genres
 (
-    id         uuid primary key default gen_random_uuid(),
-    name       text                           not null unique,
-    created_at timestamptz      default now() not null,
-    updated_at timestamptz      default null
+    id   uuid primary key default gen_random_uuid(),
+    name text not null unique
 );
+
 comment on table genres is 'Справочник музыкальных жанров.';
 
 comment on column genres.id is 'Уникальный идентификатор жанра.';
 comment on column genres.name is 'Уникальное имя жанра.';
-comment on column genres.created_at is 'Время создания записи жанра.';
-comment on column genres.updated_at is 'Время последнего обновления записи жанра.';
 
 -- TrackGenres
 create table track_genres
@@ -54,6 +51,7 @@ create table album_artists
     created_at timestamptz default now() not null,
     primary key (album_id, artist_id)
 );
+
 comment on table album_artists is 'Связь альбом—артист с порядком отображения.';
 
 comment on column album_artists.album_id is 'Ссылка на альбом.';
@@ -73,10 +71,8 @@ comment on index artists_name_trgm_index is 'GIN trigram индекс для б�
 create index albums_title_trgm_index on albums using gin (title gin_trgm_ops);
 comment on index albums_title_trgm_index is 'GIN trigram индекс для быстрого поиска/подсказок по названию альбома.';
 
-
 create index album_tracks_track_id_idx on album_tracks (track_id);
 comment on index album_tracks_track_id_idx is 'Индекс для быстрого поиска альбомов по треку (обратные связи).';
-
 
 create index uploads_owner_id_idx on uploads (owner_id);
 comment on index uploads_owner_id_idx is 'Индекс для выборок загрузок по владельцу.';
