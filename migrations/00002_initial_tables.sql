@@ -123,20 +123,26 @@ comment on column tracks.uploaded_at is 'Дата загрузки трека.';
 create index tracks_owner_index on tracks (uploader_id);
 comment on index tracks_owner_index is 'Индекс по owner_id таблицы tracks для ускорения поиска треков по владельцу.';
 
+-- Person // TODO добавить
+
+-- Person <-> Artists: связь многие ко многим
+
 -- Artists
 create table artists
 (
-    id         uuid primary key default gen_random_uuid(),
-    name       text                           not null,
-    bio        text                           not null,
-    created_at timestamptz      default now() not null,
-    updated_at timestamptz      default null
+    id                      uuid primary key default gen_random_uuid(),
+    display_name            text                           not null,
+    normalized_display_name text unique                    not null,
+    bio                     text                           not null,
+    created_at              timestamptz      default now() not null,
+    updated_at              timestamptz      default null
 );
 
 comment on table artists is 'Исполнители/авторы.';
 
 comment on column artists.id is 'Уникальный идентификатор.';
-comment on column artists.name is 'Отображаемое имя артиста.';
+comment on column artists.display_name is 'Отображаемое имя артиста.';
+comment on column artists.normalized_display_name is 'Нормализованное имя артиста';
 comment on column artists.bio is 'Короткая биография/описание артиста.';
 comment on column artists.created_at is 'Время создания записи артиста.';
 comment on column artists.updated_at is 'Время последнего обновления записи артиста.';
@@ -175,7 +181,7 @@ create table track_files
     channels    integer                        not null,
     size        bigint                         not null,
     duration    interval                       not null,
-    checksum    text                           not null,
+    checksum    bytea unique                   not null,
     created_at  timestamptz      default now() not null,
     updated_at  timestamptz      default null,
     uploaded_at timestamptz                    not null
@@ -207,11 +213,12 @@ comment on index track_files_track_id_index is 'Индекс по track_id та�
 create table albums
 (
     id           uuid primary key default gen_random_uuid(),
-    owner_id     uuid                           references users (id) on delete set null,
-    title        text                           not null,
-    description  text                           not null,
-    release_date date                           not null,
-    created_at   timestamptz      default now() not null,
+    owner_id     uuid                               references users (id) on delete set null,
+    title        text                               not null,
+    description  text                               not null,
+    visibility   visibility       default 'private' not null,
+    release_date date                               not null,
+    created_at   timestamptz      default now()     not null,
     updated_at   timestamptz      default null
 );
 
@@ -221,6 +228,7 @@ comment on column albums.id is 'Уникальный идентификатор.
 comment on column albums.owner_id is 'Кто создал запись альбома (может быть NULL, если удалён пользователь).';
 comment on column albums.title is 'Название альбома.';
 comment on column albums.description is 'Описание альбома.';
+comment on column albums.visibility is 'Видимость альбома.';
 comment on column albums.release_date is 'Дата релиза (если известна).';
 comment on column albums.created_at is 'Время создания записи альбома.';
 comment on column albums.updated_at is 'Время последнего обновления записи альбома.';
