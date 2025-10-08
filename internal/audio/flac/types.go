@@ -1,19 +1,21 @@
 package flac
 
 import (
-	"io"
+	"errors"
+	"os"
 	"strings"
 	"time"
 )
 
-// SeekPoint из SEEKTABLE (18 байт на точку).
+// SeekPoint — запись из SEEKTABLE (18 байт на точку).
+// Позволяет быстро искать по абсолютным сэмплам без полного декодирования.
 type SeekPoint struct {
-	SampleNumber uint64 // 0xFFFFFFFFFFFFFFFF placeholder
-	Offset       uint64 // абсолютное смещение байтов относительно начала аудиопотока
-	FrameSamples uint16 // количество сэмплов в аудиофрейме, на который указывает точка
+	SampleNumber uint64 // 0xFFFFFFFFFFFFFFFF placeholder (нет явной точки)
+	Offset       uint64 // Абсолютное байтовое смещение от начала аудиопотока
+	FrameSamples uint16 // Количество сэмплов в целевом аудиофрейме
 }
 
-// Picture соответствует метаблоку PICTURE.
+// Picture соответствует метаблоку PICTURE (обложки, картинки и т.п.).
 type Picture struct {
 	Type        uint32
 	MIME        string
@@ -22,21 +24,22 @@ type Picture struct {
 	Height      uint32
 	Depth       uint32
 	Colors      uint32
-	Data        []byte // Само изображение
+	Data        []byte // Само изображение (байтовый blob)
 }
 
-// Application APPLICATION block (ID + raw payload).
+// Application блок APPLICATION (4-байтовый ID + произвольный payload).
 type Application struct {
 	ID   [4]byte
 	Data []byte
 }
 
-// CueIndex CUESHEET entities (сокращённый, но совместимый набор).
+// CueIndex индекс в пределах трека CUESHEET (offset/number).
 type CueIndex struct {
 	Offset uint64
 	Number uint8
 }
 
+// CueTrack запись трека внутри CUESHEET (см. RFC).
 type CueTrack struct {
 	Offset       uint64
 	Number       uint8
@@ -46,6 +49,7 @@ type CueTrack struct {
 	IndexEntries []CueIndex
 }
 
+// CueSheet целиком блок CUESHEET.
 type CueSheet struct {
 	MediaCatalog string
 	LeadIn       uint64
@@ -53,6 +57,8 @@ type CueSheet struct {
 	Tracks       []CueTrack
 }
 
+// Metadata собранные метаданные FLAC файла.
+// Поле Size не гарантировано для произвольных io.Reader, но заполняется, если вход — файл (*os.File).
 type Metadata struct {
 	Format string
 	Size   int64
@@ -66,34 +72,39 @@ type Metadata struct {
 	Channels      int
 	BitsPerSample int
 	TotalSamples  uint64
-	MD5Signature  [16]byte
+	MD5Signature  [16]byte // MD5 от несжатых PCM-данных
 
-	// Derived
+	// Производное
 	Duration time.Duration
 
 	// VORBIS_COMMENT
 	Vendor    string
-	Tags      map[string]string   // first-value convenience
-	TagsMulti map[string][]string // full list
+	Tags      map[string]string   // Первое значение для каждого ключа
+	TagsMulti map[string][]string // Все значения по ключу
 
-	// Additional blocks
+	// Дополнительные блоки
 	SeekTable    []SeekPoint
 	Pictures     []Picture
 	CueSheet     *CueSheet
 	Applications []Application
 }
 
-// DecodeMetadata auto-detects and decodes metadata; now supports only FLAC.
-func DecodeMetadata(r io.ReadSeeker) (Metadata, error) {
-	if isFLAC(r) {
-		if _, err := r.Seek(0, io.SeekStart); err != nil {
-			return Metadata{}, err
-		}
-
-		return decodeFLACMetadata(r)
+// DecodeMetadata декодирует метаданные FLAC из файла.
+// Если сигнатура не FLAC, тогда возвращается ErrUnsupportedFormat.
+func DecodeMetadata(file *os.File) (Metadata, error) {
+	metadata, err := decodeFLACMetadata(file)
+	if errors.Is(err, ErrInvalidMetadata) {
+		return Metadata{}, ErrUnsupportedFormat
 	}
 
-	return Metadata{}, ErrUnsupportedFormat
+	fi, err := file.Stat()
+	if err == nil {
+		metadata.Size = fi.Size()
+	} else {
+		return metadata, err
+	}
+
+	return metadata, err
 }
 
 func normalizeKey(k string) string {

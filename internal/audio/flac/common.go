@@ -10,7 +10,8 @@ var (
 	ErrNegativeLength = errors.New("negative length")
 )
 
-// readBytes считывает определённое количество байт.
+// readBytes считывает ровно n байт из r.
+// Возвращает ошибку, если прочитано меньше (EOF/short read).
 func readBytes(r io.Reader, n int) ([]byte, error) {
 	if n < 0 {
 		return nil, ErrNegativeLength
@@ -20,6 +21,15 @@ func readBytes(r io.Reader, n int) ([]byte, error) {
 	_, err := io.ReadFull(r, buffer)
 
 	return buffer, err
+}
+
+// readU8 считывает один байт.
+func readU8(r io.Reader) (uint8, error) {
+	var buffer [1]byte
+
+	_, err := io.ReadFull(r, buffer[:])
+
+	return buffer[0], err
 }
 
 // readU16BE считывает uint16 в формате big-endian.
@@ -86,7 +96,8 @@ func readU64BE(r io.Reader) (uint64, error) {
 	return binary.BigEndian.Uint64(buffer[:]), nil
 }
 
-// readLPStringLE считывает length-prefixed строку: сначала uint32 LE длины, затем байты строки.
+// readLPStringLE читает length-prefixed строку: сначала длина (u32 LE), затем payload.
+// Такая форма используется в VorbisComment (vendor и сами комментарии).
 func readLPStringLE(r io.Reader) (string, error) {
 	n, err := readU32LE(r)
 	if err != nil {

@@ -95,16 +95,17 @@ comment on index users_email_index is 'Индекс по email таблицы us
 -- Tracks
 create table tracks
 (
-    id          uuid primary key default gen_random_uuid(),
-    uploader_id uuid references users (id),
-    title       text                               not null,
-    subtitle    text                               not null,
-    description text                               not null,
-    duration    interval                           not null,
-    visibility  visibility       default 'private' not null,
-    created_at  timestamptz      default now()     not null,
-    updated_at  timestamptz      default null,
-    uploaded_at timestamptz                        not null
+    id               uuid primary key default gen_random_uuid(),
+    uploader_id      uuid references users (id),
+    title            text                               not null,
+    normalized_title text                               not null,
+    subtitle         text                               not null,
+    description      text                               not null,
+    duration         interval                           not null,
+    visibility       visibility       default 'private' not null,
+    created_at       timestamptz      default now()     not null,
+    updated_at       timestamptz      default null,
+    uploaded_at      timestamptz                        not null
 );
 
 comment on table tracks is 'Логические треки. Одна запись — единый музыкальный/медийный объект.';
@@ -112,6 +113,7 @@ comment on table tracks is 'Логические треки. Одна запис
 comment on column tracks.id is 'Уникальный идентификатор.';
 comment on column tracks.uploader_id is 'Пользователь/владелец, загрузивший трек.';
 comment on column tracks.title is 'Название трека.';
+comment on column tracks.normalized_title is 'Нормализованное название трека';
 comment on column tracks.subtitle is 'Подзаголовок или дополнительный заголовок.';
 comment on column tracks.description is 'Дополнительное описание трека.';
 comment on column tracks.duration is 'Длительность трека.';
@@ -146,6 +148,9 @@ comment on column artists.normalized_display_name is 'Нормализованн
 comment on column artists.bio is 'Короткая биография/описание артиста.';
 comment on column artists.created_at is 'Время создания записи артиста.';
 comment on column artists.updated_at is 'Время последнего обновления записи артиста.';
+
+create index artists_name_trgm_index on artists using gin (display_name gin_trgm_ops);
+comment on index artists_name_trgm_index is 'GIN trigram индекс для быстрого поиска/подсказок по имени артиста.';
 
 -- TrackArtists- связь трек <-> артист
 create table track_artists
@@ -209,24 +214,58 @@ comment on column track_files.uploaded_at is 'Дата загрузки файл
 create index track_files_track_id_index on track_files (track_id);
 comment on index track_files_track_id_index is 'Индекс по track_id таблицы track_files для ускорения поиска файлов по треку.';
 
+-- Uploads
+create table uploads
+(
+    id         uuid primary key default gen_random_uuid(),
+    owner_id   uuid references users (id),
+    filename   text                               not null,
+    s3_key     text                               not null,
+    mime       text                               not null,
+    size       bigint                             not null,
+    status     upload_status    default 'pending' not null,
+    created_at timestamptz      default now()     not null,
+    updated_at timestamptz      default null
+);
+
+comment on table uploads is 'Промежуточные записи загрузок.';
+
+comment on column uploads.id is 'Уникальный идентификатор.';
+comment on column uploads.owner_id is 'Пользователь, загрузивший файл.';
+comment on column uploads.filename is 'Исходное имя загружаемого файла.';
+comment on column uploads.s3_key is 'Ключ/путь в object storage (S3/MinIO).';
+comment on column uploads.mime is 'MIME-тип файла.';
+comment on column uploads.size is 'Размер файла в байтах.';
+comment on column uploads.status is 'Статус загрузки: pending, processing, done, failed.';
+comment on column uploads.created_at is 'Время создания записи загрузки.';
+comment on column uploads.updated_at is 'Время последнего обновления записи загрузки.';
+
+create index uploads_owner_id_idx on uploads (owner_id);
+comment on index uploads_owner_id_idx is 'Индекс для выборок загрузок по владельцу.';
+
+
 -- Albums
 create table albums
 (
-    id           uuid primary key default gen_random_uuid(),
-    owner_id     uuid                               references users (id) on delete set null,
-    title        text                               not null,
-    description  text                               not null,
-    visibility   visibility       default 'private' not null,
-    release_date date                               not null,
-    created_at   timestamptz      default now()     not null,
-    updated_at   timestamptz      default null
+    id               uuid primary key default gen_random_uuid(),
+    owner_id         uuid                               references users (id) on delete set null,
+    picture_id       uuid                               references uploads (id) on delete set null,
+    title            text                               not null,
+    normalized_title text unique                        not null,
+    description      text                               not null,
+    visibility       visibility       default 'private' not null,
+    release_date     date                               not null,
+    created_at       timestamptz      default now()     not null,
+    updated_at       timestamptz      default null
 );
 
 comment on table albums is 'Альбомы / релизы.';
 
 comment on column albums.id is 'Уникальный идентификатор.';
-comment on column albums.owner_id is 'Кто создал запись альбома (может быть NULL, если удалён пользователь).';
+comment on column albums.owner_id is 'Кто создал запись альбома (может быть NULL, если удалён пользователь). При удалении сбрасывается в NULL.';
+comment on column albums.picture_id is 'Идентификатор записи в uploads, представляющей обложку альбома (оригинал). При удалении сбрасывается в NULL.';
 comment on column albums.title is 'Название альбома.';
+comment on column albums.normalized_title is 'Нормализованное название альбома.';
 comment on column albums.description is 'Описание альбома.';
 comment on column albums.visibility is 'Видимость альбома.';
 comment on column albums.release_date is 'Дата релиза (если известна).';
@@ -235,6 +274,40 @@ comment on column albums.updated_at is 'Время последнего обно
 
 create index albums_owner_index on albums (owner_id);
 comment on index albums_owner_index is 'Индекс по owner_id таблицы albums для ускорения поиска альбомов по владельцу.';
+
+create index albums_title_trgm_index on albums using gin (title gin_trgm_ops);
+comment on index albums_title_trgm_index is 'GIN trigram индекс для быстрого поиска/подсказок по названию альбома.';
+
+-- Genres
+create table genres
+(
+    id   uuid primary key default gen_random_uuid(),
+    name text not null unique
+);
+
+comment on table genres is 'Справочник музыкальных жанров.';
+
+comment on column genres.id is 'Уникальный идентификатор жанра.';
+comment on column genres.name is 'Уникальное имя жанра.';
+
+-- TrackGenres
+create table track_genres
+(
+    track_id uuid not null references tracks (id) on delete cascade,
+    genre_id uuid not null references genres (id) on delete cascade,
+    primary key (track_id, genre_id)
+);
+
+comment on table track_genres is 'Связь треков с жанрами (многие-ко-многим).';
+
+comment on column track_genres.track_id is 'Ссылка на трек.';
+comment on column track_genres.genre_id is 'Ссылка на жанр.';
+
+create index track_genres_track_id_idx on track_genres (track_id);
+comment on index track_genres_track_id_idx is 'Индекс по track_id для быстрого получения жанров трека.';
+
+create index track_genres_genre_id_idx on track_genres (genre_id);
+comment on index track_genres_genre_id_idx is 'Индекс по genre_id для выборки треков по жанру.';
 
 -- AlbumTracks — позиции треков внутри альбома/диска
 create table album_tracks
@@ -255,6 +328,32 @@ comment on column album_tracks.disc_number is 'Номер диска внутр�
 comment on column album_tracks.position is 'Позиция трека на диске (1..N).';
 comment on column album_tracks.track_id is 'Ссылка на трек.';
 comment on column album_tracks.created_at is 'Время создания позиции трека в альбоме.';
+
+create index album_tracks_track_id_idx on album_tracks (track_id);
+comment on index album_tracks_track_id_idx is 'Индекс для быстрого поиска альбомов по треку (обратные связи).';
+
+-- AlbumArtists: связь альбом <-> артист
+create table album_artists
+(
+    album_id   uuid                      not null references albums (id) on delete cascade,
+    artist_id  uuid                      not null references artists (id) on delete cascade,
+    ord        integer     default 0     not null,
+    created_at timestamptz default now() not null,
+    primary key (album_id, artist_id)
+);
+
+comment on table album_artists is 'Связь альбом—артист с порядком отображения.';
+
+comment on column album_artists.album_id is 'Ссылка на альбом.';
+comment on column album_artists.artist_id is 'Ссылка на артиста.';
+comment on column album_artists.ord is 'Порядок артиста в списке артистов альбома.';
+comment on column album_artists.created_at is 'Время создания связи альбом—артист.';
+
+create index album_artists_album_id_idx on album_artists (album_id);
+comment on index album_artists_album_id_idx is 'Индекс для быстрого получения артистов конкретного альбома.';
+
+create index album_artists_artist_id_idx on album_artists (artist_id);
+comment on index album_artists_artist_id_idx is 'Индекс для быстрого получения альбомов конкретного артиста.';
 
 -- Playlists
 create table playlists
@@ -297,32 +396,6 @@ comment on column playlist_items.playlist_id is 'Ссылка на плейли�
 comment on column playlist_items.track_id is 'Ссылка на трек.';
 comment on column playlist_items.position is 'Позиция трека в плейлисте.';
 comment on column playlist_items.added_at is 'Время добавления трека в плейлист.';
-
--- Uploads
-create table uploads
-(
-    id         uuid primary key default gen_random_uuid(),
-    owner_id   uuid references users (id),
-    filename   text                               not null,
-    s3_key     text                               not null,
-    mime       text                               not null,
-    size       bigint                             not null,
-    status     upload_status    default 'pending' not null,
-    created_at timestamptz      default now()     not null,
-    updated_at timestamptz      default null
-);
-
-comment on table uploads is 'Промежуточные записи загрузок.';
-
-comment on column uploads.id is 'Уникальный идентификатор.';
-comment on column uploads.owner_id is 'Пользователь, загрузивший файл.';
-comment on column uploads.filename is 'Исходное имя загружаемого файла.';
-comment on column uploads.s3_key is 'Ключ/путь в object storage (S3/MinIO).';
-comment on column uploads.mime is 'MIME-тип файла.';
-comment on column uploads.size is 'Размер файла в байтах.';
-comment on column uploads.status is 'Статус загрузки: pending, processing, done, failed.';
-comment on column uploads.created_at is 'Время создания записи загрузки.';
-comment on column uploads.updated_at is 'Время последнего обновления записи загрузки.';
 
 -- UserFollowers
 create table user_followers
@@ -370,21 +443,38 @@ drop index tracks_title_trgm_index;
 
 drop table track_likes;
 drop table user_followers;
-drop table uploads;
+
 drop table playlist_items;
 
 drop index playlists_owner_index;
 drop table playlists;
 
+drop index album_tracks_track_id_idx;
 drop table album_tracks;
 
+drop table genres;
+
+drop index track_genres_track_id_idx;
+drop index track_genres_genre_id_idx;
+drop table track_genres;
+
+drop index album_artists_album_id_idx;
+drop index album_artists_artist_id_idx;
+drop table album_artists;
+
+drop index albums_title_trgm_index;
 drop index albums_owner_index;
 drop table albums;
+
+drop index uploads_owner_id_idx;
+drop table uploads;
 
 drop index track_files_track_id_index;
 drop table track_files;
 
 drop table track_artists;
+
+drop index artists_name_trgm_index;
 drop table artists;
 
 drop index tracks_owner_index;
