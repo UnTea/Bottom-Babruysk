@@ -5,24 +5,87 @@ version: '3'
 dotenv: [ '.env' ]
 
 vars:
+  # Linter configuration file
   LINTER_CONFIG: .golangci.yaml
 
+  # Go build
+  MAIN: ./cmd/api/
+  BINARY: bottom_babruysk
+  BIN_DIR: ./bin
+
+  # Imposter
+  IMPOSTER_BINARY: imposter
+  IMPOSTER_MAIN: ./cmd/flac_importer
+
+  # Docker Compose
+  COMPOSE_FILE: docker-compose.yml
+
 tasks:
-  install:tools:
+  install:
     desc: Install go tools
     cmds:
       - go install tool
 
   lint:
     desc: Run golangci-lint
-    deps: [ install:tools ]
+    deps: [ install ]
     cmds:
       - golangci-lint run -c {{.LINTER_CONFIG}}
 
   gen:
     desc: Generate protobuf
-    deps: [ install:tools ]
+    deps: [ install ]
     cmds:
       - buf lint
       - buf format -w
       - buf generate
+
+  build:api:
+    desc: Build API binary ({{.BINARY}})
+    cmds:
+      - mkdir -p {{.BIN_DIR}}
+      - >
+        go build -trimpath -ldflags "-s -w"
+        -o {{.BIN_DIR}}/{{.BINARY}}.exe {{.MAIN}}
+
+  run:api:
+    desc: Run compiled API binary
+    deps: [ build:api ]
+    cmds:
+      - "{{.BIN_DIR}}/{{.BINARY}}.exe"
+
+  build:imposter:
+    desc: Build FLAC imposter ({{.IMPOSTER_BINARY}})
+    cmds:
+      - mkdir -p {{.BIN_DIR}}
+      - >
+        go build -trimpath -ldflags "-s -w"
+        -o {{.BIN_DIR}}/{{.IMPOSTER_BINARY}}.exe {{.IMPOSTER_MAIN}}
+
+  run:imposter:
+    desc: Run compiled IMPOSTER binary
+    deps: [ build:imposter ]
+    cmds:
+      - "{{.BIN_DIR}}/{{.IMPOSTER_BINARY}}.exe"
+
+  compose:up:
+    desc: Run docker compose (build images and start services)
+    cmds:
+      - docker compose -f {{.COMPOSE_FILE}} up --build
+
+  compose:up:detached:
+    desc: Run docker compose in detached mode (db + migrator)
+    cmds:
+      - docker compose -f {{.COMPOSE_FILE}} up -d --build
+
+  compose:down:
+    desc: Stop and remove containers (volumes stay)
+    cmds:
+      - docker compose -f {{.COMPOSE_FILE}} down
+
+  all:
+    desc: Up docker (db+migrator), build and run API
+    cmds:
+      - task: compose:up:detached
+      - task: build:api
+      - task: build:imposter

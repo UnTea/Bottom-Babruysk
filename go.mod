@@ -22,8 +22,9 @@ require (
 	github.com/jackc/pgx/v5 v5.7.6
 	github.com/joho/godotenv v1.5.1
 	go.uber.org/zap v1.27.0
+	golang.org/x/exp v0.0.0-20251002181428-27f1f14c8bb9
 	golang.org/x/net v0.44.0
-	google.golang.org/protobuf v1.36.9
+	google.golang.org/protobuf v1.36.10
 )
 
 require (
@@ -318,7 +319,6 @@ require (
 	go.uber.org/mock v0.6.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/crypto v0.42.0 // indirect
-	golang.org/x/exp v0.0.0-20250819193227-8b4c13bb791b // indirect
 	golang.org/x/exp/typeparams v0.0.0-20250911091902-df9299821621 // indirect
 	golang.org/x/mod v0.28.0 // indirect
 	golang.org/x/sync v0.17.0 // indirect
@@ -327,7 +327,7 @@ require (
 	golang.org/x/text v0.29.0 // indirect
 	golang.org/x/tools v0.37.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20250922171735-9219d122eba9 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20250922171735-9219d122eba9 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20250929231259-57b25ae835d4 // indirect
 	google.golang.org/grpc v1.75.1 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect

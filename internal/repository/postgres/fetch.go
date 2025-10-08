@@ -42,9 +42,29 @@ func FetchMany[Model any](ctx context.Context, driver Driver, sqlQuery string, a
 		return nil, err
 	}
 
-	if err = rows.Err(); err != nil {
+	err = rows.Err()
+	if err != nil {
 		return nil, err
 	}
 
 	return models, nil
+}
+
+// FetchScalar выполняет запрос и маппит запрос к скалярному типу.
+func FetchScalar[T any](ctx context.Context, driver Driver, sqlQuery string, arguments ...any) (*T, error) {
+	rows, err := driver.Query(ctx, sqlQuery, arguments...)
+	if err != nil {
+		return nil, err
+	}
+
+	value, err := pgx.CollectOneRow[*T](rows, pgx.RowTo)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return nil, ErrNotFound
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	return value, nil
 }

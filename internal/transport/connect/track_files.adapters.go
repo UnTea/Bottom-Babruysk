@@ -24,7 +24,7 @@ func toProtoTrackFile(trackFile *domain.TrackFile) *protov1.TrackFile {
 		Channels:   utils.ValueOrZero(utils.IntToInt32(trackFile.Channels)),
 		Size:       utils.ValueOrZero(trackFile.Size),
 		Duration:   utils.DurationToDurationpb(trackFile.Duration),
-		Checksum:   utils.ValueOrZero(trackFile.Checksum),
+		Checksum:   string(trackFile.Checksum),
 		CreatedAt:  utils.TimeToTimestamppb(trackFile.CreatedAt),
 		UpdatedAt:  utils.TimeToTimestamppb(trackFile.UpdatedAt),
 		UploadedAt: utils.TimeToTimestamppb(trackFile.UploadedAt),
