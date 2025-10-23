@@ -1,0 +1,11 @@
+version: v2
+inputs:
+  - directory: ../proto/
+plugins:
+  - local: ["bunx", "--bun", "@bufbuild/protoc-gen-es"]
+    opt: target=ts
+    out: src/gen
+
+  - local: ["bunx", "--bun", "@connectrpc/protoc-gen-connect-query"]
+    opt: target=ts
+    out: src/gen
